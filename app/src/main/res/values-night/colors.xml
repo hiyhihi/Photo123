@@ -1,0 +1,4 @@
+<resources>
+    <color name="filter_thumbnail_placeholder">#424242</color>
+    <color name="filter_selected_border">#64B5F6</color>
+</resources>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">PhotoFilter</string>
+
+    <string name="filter_original">Màu gốc</string>
+    <string name="filter_bw">Trắng đen</string>
+    <string name="filter_negative">Âm bản</string>
+    <string name="filter_sepia">Sepia</string>
+    <string name="filter_warm">Ấm</string>
+    <string name="filter_cool">Lạnh</string>
+    <string name="filter_bright">Sáng</string>
+
+    <string name="action_pick_image">Chọn ảnh</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_share">Chia sẻ</string>
+
+    <string name="empty_state_message">Chọn ảnh để bắt đầu</string>
+    <string name="share_chooser_title">Chia sẻ ảnh qua</string>
+    <string name="save_success">Đã lưu ảnh vào thư viện</string>
+    <string name="permission_denied">Cần quyền lưu trữ để lưu ảnh</string>
+
+    <string name="error_open_image">Không thể mở ảnh này</string>
+    <string name="error_save_image">Không thể lưu ảnh</string>
+
+    <string name="content_desc_main_image">Ảnh đang chỉnh sửa</string>
+    <string name="content_desc_filter_thumbnail">Xem trước bộ lọc %1$s</string>
+</resources>
