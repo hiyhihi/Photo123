@@ -393,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         if (AUTO_ACTION_PICK.equals(autoAction)) {
             pickImageLauncher.launch(new String[]{"image/*"});
         } else if (AUTO_ACTION_CAMERA.equals(autoAction)) {
-            launchCamera();
+            withStoragePermission(this::launchCamera);
         } else if (AUTO_ACTION_PICK_THEN_AI.equals(autoAction)) {
             openAiTabOnNextImage = true;
             pickImageLauncher.launch(new String[]{"image/*"});
@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                     if (which == 0) {
                         pickImageLauncher.launch(new String[]{"image/*"});
                     } else {
-                        launchCamera();
+                        withStoragePermission(this::launchCamera);
                     }
                 })
                 .show();
