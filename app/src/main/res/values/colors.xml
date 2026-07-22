@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- HATFilter brand palette — glassmorphism, light, blue/cyan gradient-forward. -->
+    <color name="bg_base">#F7F8FC</color>
+    <color name="bg_glow_top">#DCEBFF</color>
+    <color name="bg_surface">#F2F6FF</color>
+    <color name="bg_surface_alt">#E7EEFC</color>
+    <color name="glass_surface">#E6FFFFFF</color>
+    <color name="glass_stroke">#B3FFFFFF</color>
+    <color name="divider">#D8E2F5</color>
+
+    <color name="accent_blue">#4A7DFF</color>
+    <color name="accent_cyan">#5DE2FF</color>
+    <color name="accent_blue_soft">#7FD9FF</color>
+
+    <color name="text_primary">#1A1D29</color>
+    <color name="text_muted">#7B8194</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <color name="filter_thumbnail_placeholder">#E7EEFC</color>
+</resources>

@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">HATFilter</string>
+
+    <string name="filter_original">Màu gốc</string>
+    <string name="filter_bw">Trắng đen</string>
+    <string name="filter_negative">Âm bản</string>
+    <string name="filter_sepia">Sepia</string>
+    <string name="filter_warm">Ấm</string>
+    <string name="filter_cool">Lạnh</string>
+    <string name="filter_bright">Sáng</string>
+    <string name="filter_vintage">Cổ điển</string>
+    <string name="filter_vignette">Viền tối</string>
+    <string name="filter_blur">Mờ nhẹ</string>
+    <string name="filter_adjust">Tuỳ chỉnh</string>
+
+    <string name="action_pick_image">Chọn ảnh</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_share">Chia sẻ</string>
+    <string name="action_camera">Chụp ảnh</string>
+    <string name="action_library">Thư viện</string>
+    <string name="action_rotate">Xoay</string>
+    <string name="action_crop">Cắt</string>
+    <string name="action_ai_enhance">AI tăng cường</string>
+
+    <string name="dialog_pick_source_title">Chọn ảnh từ đâu?</string>
+    <string name="dialog_crop_title">Chọn tỷ lệ cắt</string>
+    <string name="crop_ratio_original">Gốc</string>
+    <string name="crop_ratio_square">1:1</string>
+    <string name="crop_ratio_four_three">4:3</string>
+    <string name="crop_ratio_sixteen_nine">16:9</string>
+
+    <string name="adjust_brightness">Độ sáng</string>
+    <string name="adjust_contrast">Tương phản</string>
+    <string name="adjust_saturation">Bão hoà</string>
+
+    <string name="empty_state_message">Chọn ảnh để bắt đầu</string>
+    <string name="share_chooser_title">Chia sẻ ảnh qua</string>
+    <string name="save_success">Đã lưu ảnh vào thư viện</string>
+    <string name="permission_denied">Cần quyền lưu trữ để lưu ảnh</string>
+
+    <string name="error_open_image">Không thể mở ảnh này</string>
+    <string name="error_save_image">Không thể lưu ảnh</string>
+    <string name="error_camera">Không thể mở camera</string>
+    <string name="error_ai_enhance">Không thể tăng cường ảnh bằng AI lúc này</string>
+
+    <string name="content_desc_main_image">Ảnh đang chỉnh sửa</string>
+    <string name="content_desc_filter_thumbnail">Xem trước bộ lọc %1$s</string>
+    <string name="content_desc_favorite">Đánh dấu yêu thích</string>
+    <string name="content_desc_adjust_toggle">Tuỳ chỉnh màu sắc</string>
+
+    <string name="menu_history">Lịch sử</string>
+    <string name="history_title">Lịch sử chỉnh sửa</string>
+    <string name="history_empty">Chưa có ảnh nào được lưu</string>
+
+    <string name="ai_enhance_progress">AI đang xử lý ảnh…</string>
+    <string name="ai_enhance_success">Đã tăng cường ảnh bằng AI</string>
+</resources>
