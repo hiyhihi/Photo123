@@ -1,6 +1,7 @@
 package com.example.photofilter.presenter;
 
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 
 import com.example.photofilter.data.CropRatio;
@@ -57,6 +58,9 @@ public interface EditorContract {
         void onFlipRequested();
 
         void onCropRequested(CropRatio ratio);
+
+        /** @param normalizedRect free-form crop rect as fractions (0..1) of the image, from the drag-handle overlay. */
+        void onCustomCropRequested(RectF normalizedRect);
 
         /** @param scalePercent target size as a percentage of the current image, e.g. 150 = 150%. */
         void onResizeRequested(int scalePercent);

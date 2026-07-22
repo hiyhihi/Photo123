@@ -2,6 +2,7 @@ package com.example.photofilter.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -266,6 +267,11 @@ public class EditorPresenter implements EditorContract.Presenter {
             return;
         }
         applyGeometryChange(source -> CropUtils.centerCrop(source, ratio));
+    }
+
+    @Override
+    public void onCustomCropRequested(RectF normalizedRect) {
+        applyGeometryChange(source -> CropUtils.customCrop(source, normalizedRect));
     }
 
     @Override

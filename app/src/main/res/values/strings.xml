@@ -25,6 +25,9 @@
     <string name="action_crop">Cắt</string>
     <string name="action_flip">Lật</string>
     <string name="action_resize">Đổi cỡ</string>
+    <string name="action_crop_custom">Tự do</string>
+    <string name="action_confirm">Xác nhận</string>
+    <string name="action_cancel">Huỷ</string>
     <string name="action_ai_enhance">AI tăng cường</string>
     <string name="section_filters">Bộ lọc</string>
 

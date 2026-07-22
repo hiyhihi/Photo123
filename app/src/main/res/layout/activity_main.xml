@@ -68,6 +68,12 @@
             android:indeterminateTint="@color/accent_yellow"
             android:visibility="gone" />
 
+        <com.example.photofilter.ui.CropOverlayView
+            android:id="@+id/cropOverlayView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
     </FrameLayout>
 
     <!-- Persistent Material bottom sheet: hidden by default, one of the 5 panels below
@@ -84,6 +90,15 @@
         app:behavior_skipCollapsed="true"
         app:behavior_peekHeight="0dp">
 
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="false">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/filterRecyclerView"
             android:layout_width="match_parent"
@@ -94,35 +109,83 @@
             android:visibility="gone"
             tools:listitem="@layout/item_filter_thumbnail" />
 
-        <HorizontalScrollView
+        <LinearLayout
             android:id="@+id/cropSheetPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
+            android:orientation="vertical"
             android:paddingVertical="16dp"
-            android:scrollbars="none"
             android:visibility="gone">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:paddingHorizontal="16dp"
+                android:scrollbars="none">
 
-                <include layout="@layout/item_tool_icon" android:id="@+id/cropOriginalButton" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/cropSquareButton" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/cropFourThreeButton" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/cropSixteenNineButton" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/rotateButton" android:layout_marginStart="14dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/flipButton" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/resize75Button" android:layout_marginStart="14dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/resize100Button" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/resize125Button" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/resize150Button" android:layout_marginStart="8dp" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/resize200Button" android:layout_marginStart="8dp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <include layout="@layout/item_tool_icon" android:id="@+id/cropOriginalButton" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/cropSquareButton" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/cropFourThreeButton" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/cropSixteenNineButton" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/cropCustomButton" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/rotateButton" android:layout_marginStart="14dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/flipButton" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/resize75Button" android:layout_marginStart="14dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/resize100Button" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/resize125Button" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/resize150Button" android:layout_marginStart="8dp" />
+                    <include layout="@layout/item_tool_icon" android:id="@+id/resize200Button" android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:id="@+id/cropCustomActionsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/cropCancelButton"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_button_ghost"
+                    android:backgroundTint="@null"
+                    app:backgroundTint="@null"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="@string/action_cancel"
+                    android:textAllCaps="false"
+                    android:textColor="@color/accent_yellow"
+                    android:elevation="0dp" />
+
+                <Button
+                    android:id="@+id/cropConfirmButton"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_button_primary"
+                    android:backgroundTint="@null"
+                    app:backgroundTint="@null"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="@string/action_confirm"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_on_accent"
+                    android:elevation="0dp" />
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/adjustSheetPanel"
@@ -287,6 +350,10 @@
                 android:elevation="0dp" />
 
         </LinearLayout>
+
+        </FrameLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
     </FrameLayout>
 

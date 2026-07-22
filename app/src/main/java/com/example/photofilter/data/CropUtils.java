@@ -2,6 +2,7 @@ package com.example.photofilter.data;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 
 /** Pure bitmap-geometry helpers used by the Crop tool sheet: center-crop, rotate, flip, resize. */
 public final class CropUtils {
@@ -47,6 +48,26 @@ public final class CropUtils {
         int x = (width - cropWidth) / 2;
         int y = (height - cropHeight) / 2;
         return Bitmap.createBitmap(source, x, y, cropWidth, cropHeight);
+    }
+
+    /**
+     * Crops to a free-form rectangle expressed as fractions (0..1) of the source
+     * image, as produced by the on-screen drag-handle overlay.
+     */
+    public static Bitmap customCrop(Bitmap source, RectF normalizedRect) {
+        int width = source.getWidth();
+        int height = source.getHeight();
+
+        int x = clampInt(Math.round(normalizedRect.left * width), 0, width - 1);
+        int y = clampInt(Math.round(normalizedRect.top * height), 0, height - 1);
+        int cropWidth = clampInt(Math.round(normalizedRect.width() * width), 1, width - x);
+        int cropHeight = clampInt(Math.round(normalizedRect.height() * height), 1, height - y);
+
+        return Bitmap.createBitmap(source, x, y, cropWidth, cropHeight);
+    }
+
+    private static int clampInt(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private static float targetRatio(CropRatio ratio) {

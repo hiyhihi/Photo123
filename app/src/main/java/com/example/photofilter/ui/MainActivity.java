@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -81,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private SeekBar exposureSeekBar;
     private View saveButton;
     private View shareButton;
+
+    private CropOverlayView cropOverlayView;
+    private View cropCustomActionsRow;
+    private boolean customCropActive;
 
     private FilterAdapter filterAdapter;
     private EditorContract.Presenter presenter;
@@ -197,6 +203,9 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
             sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             setNavSelected(-1);
             activeTab = -1;
+            if (customCropActive) {
+                cancelCustomCrop();
+            }
             return;
         }
         if (sheetOpen) {
@@ -209,6 +218,9 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     private void showTab(int tab) {
+        if (tab != TAB_CROP && customCropActive) {
+            cancelCustomCrop();
+        }
         for (View panel : panels) {
             panel.setVisibility(View.GONE);
         }
@@ -241,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                 () -> presenter.onCropRequested(CropRatio.FOUR_THREE));
         setUpToolIcon(R.id.cropSixteenNineButton, R.drawable.ic_ratio_sixteen_nine, R.string.crop_ratio_sixteen_nine,
                 () -> presenter.onCropRequested(CropRatio.SIXTEEN_NINE));
+        setUpToolIcon(R.id.cropCustomButton, R.drawable.ic_crop_custom, R.string.action_crop_custom, this::toggleCustomCrop);
         setUpToolIcon(R.id.rotateButton, R.drawable.ic_rotate, R.string.action_rotate, () -> presenter.onRotateRequested());
         setUpToolIcon(R.id.flipButton, R.drawable.ic_flip, R.string.action_flip, () -> presenter.onFlipRequested());
         setUpToolIcon(R.id.resize75Button, R.drawable.ic_resize, R.string.resize_75, () -> presenter.onResizeRequested(75));
@@ -248,6 +261,47 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpToolIcon(R.id.resize125Button, R.drawable.ic_resize, R.string.resize_125, () -> presenter.onResizeRequested(125));
         setUpToolIcon(R.id.resize150Button, R.drawable.ic_resize, R.string.resize_150, () -> presenter.onResizeRequested(150));
         setUpToolIcon(R.id.resize200Button, R.drawable.ic_resize, R.string.resize_200, () -> presenter.onResizeRequested(200));
+
+        cropOverlayView = findViewById(R.id.cropOverlayView);
+        cropCustomActionsRow = findViewById(R.id.cropCustomActionsRow);
+        findViewById(R.id.cropCancelButton).setOnClickListener(v -> cancelCustomCrop());
+        findViewById(R.id.cropConfirmButton).setOnClickListener(v -> confirmCustomCrop());
+    }
+
+    /** Shows/hides the drag-handle crop overlay over the image; the ratio/rotate/flip/resize icons still work normally either way. */
+    private void toggleCustomCrop() {
+        customCropActive = !customCropActive;
+        if (customCropActive) {
+            cropOverlayView.setImageBounds(computeImageDisplayBounds());
+            cropOverlayView.setVisibility(View.VISIBLE);
+            cropCustomActionsRow.setVisibility(View.VISIBLE);
+        } else {
+            cropOverlayView.setVisibility(View.GONE);
+            cropCustomActionsRow.setVisibility(View.GONE);
+        }
+    }
+
+    private void cancelCustomCrop() {
+        customCropActive = false;
+        cropOverlayView.setVisibility(View.GONE);
+        cropCustomActionsRow.setVisibility(View.GONE);
+    }
+
+    private void confirmCustomCrop() {
+        RectF normalizedRect = cropOverlayView.getNormalizedCropRect();
+        cancelCustomCrop();
+        presenter.onCustomCropRequested(normalizedRect);
+    }
+
+    /** Where the image actually sits inside mainImageView (fitCenter can letterbox), in the ImageView's own pixel space. */
+    private RectF computeImageDisplayBounds() {
+        Drawable drawable = mainImageView.getDrawable();
+        if (drawable == null) {
+            return new RectF(0, 0, mainImageView.getWidth(), mainImageView.getHeight());
+        }
+        RectF bounds = new RectF(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        mainImageView.getImageMatrix().mapRect(bounds);
+        return bounds;
     }
 
     private void setUpAdjustPanel() {

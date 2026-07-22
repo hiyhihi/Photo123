@@ -520,6 +520,61 @@ git push origin main
 
 ---
 
+## Bổ sung sau Ngày 6 — Cắt tự do (kéo-thả) + cuộn cho bottom sheet nhiều chức năng
+
+**Lý do:** sau khi nộp bản 6 ngày, nhóm được yêu cầu thêm công cụ cắt ảnh tuỳ chỉnh (kéo 4 góc chọn vùng tự do, có lưới rule-of-thirds) trong panel "Cắt", và bọc toàn bộ nội dung bottom sheet trong `NestedScrollView` để tránh tràn màn hình khi một panel có nhiều tuỳ chọn. Đồng thời tăng timeout mạng trong `gradle.properties` để sync ổn định hơn trên máy dùng VPN/proxy công ty.
+
+#### Trần Tú — 3 commit
+
+```bash
+git checkout nhanh-trantu
+git config user.name "Tran Tu"
+git config user.email "<email_trantu>"
+
+git add app/src/main/java/com/example/photofilter/data/CropUtils.java
+git commit -m "feat(data): them CropUtils.customCrop - cat anh theo vung tuy chinh (RectF chuan hoa)"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
+git commit -m "feat(presenter): them onCustomCropRequested, tai su dung applyGeometryChange cho cat tu do"
+
+git add app/src/test/java/com/example/photofilter/data/CropUtilsTest.java
+git commit -m "test(data): them unit test cho CropUtils.customCrop"
+```
+
+#### Phan Lê Huy — 5 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/src/main/java/com/example/photofilter/ui/CropOverlayView.java app/src/main/res/drawable/ic_crop_custom.xml
+git commit -m "feat(ui): them CropOverlayView - keo tha 4 goc chon vung cat tu do, luoi rule-of-thirds"
+
+git add app/src/main/res/values/strings.xml
+git commit -m "feat(resource): them chuoi cho nut Tu do/Xac nhan/Huy trong panel Cat"
+
+git add app/src/main/res/layout/activity_main.xml
+git commit -m "feat(ui): them nut Tu do vao panel Cat, boc NestedScrollView cho toan bo bottom sheet de cuon khi nhieu tuy chon"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): noi CropOverlayView vao MainActivity - bat/tat che do cat tu do, xac nhan/huy"
+
+git add gradle.properties
+git commit -m "chore(gradle): tang network timeout cho mang cong ty/VPN khi sync lan dau"
+```
+
+### Merge (Tú Anh)
+
+```bash
+git checkout main
+git merge nhanh-trantu --no-ff
+git merge nhanh-huy --no-ff
+git push origin main
+```
+
+---
+
 ## Sau khi xong (chỉ cần làm 1 lần, ở Ngày 2 hoặc bất kỳ lúc nào trước merge đầu tiên)
 
 ```bash
@@ -527,14 +582,14 @@ git remote add origin <URL server của lớp>
 git push -u origin main
 ```
 
-**Tổng kết theo người (6 ngày) — đã chia đều:**
+**Tổng kết theo người (6 ngày + bổ sung cắt tự do):**
 
 | Người | Số commit | Vai trò xuyên suốt |
 | --- | --- | --- |
 | Tú Anh (nhóm trưởng) | 23 (7+3+3+6+2+2) | Filter engine (interface/abstract class), README, rà soát & test cuối, người merge nhánh mỗi ngày |
-| Trần Tú | 25 (3+5+5+6+3+3) | Data/Presenter, CropUtils, SQLite (History + Favorite), tích hợp AI (Gemini + ML Kit) |
-| Phan Lê Huy | 29 (+3 Ngày 1) = 32 (1+7+5+7+4+2+3) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter |
+| Trần Tú | 28 (3+5+5+6+3+3+3) | Data/Presenter, CropUtils (kể cả cắt tự do), SQLite (History + Favorite), tích hợp AI (Gemini + ML Kit) |
+| Phan Lê Huy | 34 (+3 Ngày 1) = 37 (1+7+5+7+4+2+3+5) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter, CropOverlayView (cắt tự do) |
 
-Ngày 3 phình to nhất và giờ lệch hẳn về Phan Lê Huy (23 / 25 / 32) vì 2 đợt redesign liên tiếp trong cùng ngày (bottom sheet + màn Home) đều là việc UI thuần, không đụng domain/data/presenter nên không có gì hợp lý để chia cho Tú Anh/Trần Tú. Nếu muốn cân lại cho đều: có thể chuyển 2-3 commit thuần tài nguyên (ví dụ commit `colors.xml`/`themes.xml` hoặc commit `strings.xml`) sang cho Trần Tú hoặc Tú Anh đứng tên, vì đây chỉ là khai báo dữ liệu, không đòi hỏi hiểu sâu về UI. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
+Ngày 3 phình to nhất vì 2 đợt redesign liên tiếp trong cùng ngày (bottom sheet + màn Home) đều là việc UI thuần, không đụng domain/data/presenter nên không có gì hợp lý để chia cho Tú Anh/Trần Tú; đợt bổ sung cắt tự do sau Ngày 6 cũng nghiêng về Phan Lê Huy vì phần lớn là `CropOverlayView` (UI) trong khi Trần Tú giữ phần `CropUtils`/presenter/test. Nếu muốn cân lại cho đều: có thể chuyển 2-3 commit thuần tài nguyên (ví dụ commit `colors.xml`/`themes.xml` hoặc commit `strings.xml`) sang cho Trần Tú hoặc Tú Anh đứng tên, vì đây chỉ là khai báo dữ liệu, không đòi hỏi hiểu sâu về UI. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
 
 **File này chỉ để tham khảo khi commit**, có thể xoá khỏi repo trước khi nộp bài nếu muốn cây thư mục gọn hơn.
