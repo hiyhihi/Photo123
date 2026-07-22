@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Looper;
 
+import com.example.photofilter.data.CropRatio;
 import com.example.photofilter.data.FavoriteRepository;
 import com.example.photofilter.data.FilterItem;
 import com.example.photofilter.data.HistoryRepository;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class EditorPresenterTest {
 
     private static final Uri FAKE_IMAGE_URI = Uri.parse("content://test/fake-image");
-    private static final int FILTER_COUNT = 10;
+    private static final int FILTER_COUNT = 13;
 
     /** Avoids depending on Robolectric's (currently unsupported) real image decoding. */
     private static class FakeImageRepository extends ImageRepository {
@@ -118,10 +119,75 @@ public class EditorPresenterTest {
         idleMainLooper();
         idleMainLooper();
 
-        presenter.onAdjustValuesChanged(10, 110, 90);
+        presenter.onAdjustValuesChanged(10, 110, 90, 0, 0);
         idleMainLooper();
 
         assertEquals(1, view.filteredImages.size());
+    }
+
+    @Test
+    public void onSharpenRequested_afterImagePicked_showsFilteredImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+
+        presenter.onSharpenRequested();
+        idleMainLooper();
+
+        assertEquals(1, view.filteredImages.size());
+    }
+
+    @Test
+    public void onRemoveNoiseRequested_afterImagePicked_showsFilteredImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+
+        presenter.onRemoveNoiseRequested();
+        idleMainLooper();
+
+        assertEquals(1, view.filteredImages.size());
+    }
+
+    @Test
+    public void onUpscaleRequested_afterImagePicked_showsFilteredImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+
+        presenter.onUpscaleRequested();
+        idleMainLooper();
+
+        assertEquals(1, view.filteredImages.size());
+    }
+
+    @Test
+    public void onResizeRequested_afterImagePicked_replacesOriginalImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+        int countBefore = view.originalImages.size();
+
+        presenter.onResizeRequested(150);
+        idleMainLooper();
+        idleMainLooper();
+
+        assertEquals(countBefore + 1, view.originalImages.size());
+        Bitmap resized = view.originalImages.get(view.originalImages.size() - 1);
+        assertEquals(30, resized.getWidth());
+    }
+
+    @Test
+    public void onResizeRequested_with100Percent_doesNothing() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+        int countBefore = view.originalImages.size();
+
+        presenter.onResizeRequested(100);
+        idleMainLooper();
+
+        assertEquals(countBefore, view.originalImages.size());
     }
 
     @Test
@@ -140,5 +206,46 @@ public class EditorPresenterTest {
         Bitmap rotated = view.originalImages.get(view.originalImages.size() - 1);
         assertEquals(originalHeight, rotated.getWidth());
         assertEquals(originalWidth, rotated.getHeight());
+    }
+
+    @Test
+    public void onFlipRequested_afterImagePicked_replacesOriginalImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+        int countBefore = view.originalImages.size();
+
+        presenter.onFlipRequested();
+        idleMainLooper();
+        idleMainLooper();
+
+        assertEquals(countBefore + 1, view.originalImages.size());
+    }
+
+    @Test
+    public void onCropRequested_withOriginalRatio_doesNothing() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+        int countBefore = view.originalImages.size();
+
+        presenter.onCropRequested(CropRatio.ORIGINAL);
+        idleMainLooper();
+
+        assertEquals(countBefore, view.originalImages.size());
+    }
+
+    @Test
+    public void onCropRequested_withSquareRatio_replacesOriginalImage() {
+        presenter.onImagePicked(FAKE_IMAGE_URI, 100, 100);
+        idleMainLooper();
+        idleMainLooper();
+        int countBefore = view.originalImages.size();
+
+        presenter.onCropRequested(CropRatio.SQUARE);
+        idleMainLooper();
+        idleMainLooper();
+
+        assertEquals(countBefore + 1, view.originalImages.size());
     }
 }

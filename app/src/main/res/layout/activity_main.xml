@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -10,36 +10,33 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="@color/text_primary"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/wordmarkText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|center_vertical"
+            android:layout_gravity="center_vertical"
             android:layout_marginStart="4dp"
             android:fontFamily="@font/sora_extrabold"
             android:letterSpacing="0.04"
             android:text="@string/app_name"
-            android:textColor="@color/accent_blue"
+            android:textColor="@color/accent_yellow"
             android:textSize="22sp" />
 
     </com.google.android.material.appbar.MaterialToolbar>
 
     <FrameLayout
         android:id="@+id/imageContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/sheetContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="20dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/mainImageView"
@@ -48,6 +45,7 @@
             android:scaleType="fitCenter"
             android:background="@color/bg_surface"
             android:contentDescription="@string/content_desc_main_image"
+            android:transitionName="editorPhotoCanvas"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.HAT.RoundedImage"
             app:strokeColor="@color/glass_stroke"
             app:strokeWidth="1dp" />
@@ -67,122 +65,72 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="@color/accent_blue"
+            android:indeterminateTint="@color/accent_yellow"
             android:visibility="gone" />
 
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/sheetContainer"
-        android:layout_width="0dp"
+    <!-- Persistent Material bottom sheet: hidden by default, one of the 5 panels below
+         becomes visible and the sheet animates to STATE_EXPANDED when a nav icon is tapped. -->
+    <FrameLayout
+        android:id="@+id/toolSheet"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@drawable/bg_sheet_top_rounded"
-        android:paddingTop="16dp"
-        android:paddingBottom="12dp"
         android:elevation="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingBottom="76dp"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_hideable="true"
+        app:behavior_skipCollapsed="true"
+        app:behavior_peekHeight="0dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/filterRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="96dp"
+            android:layout_height="112dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
+            android:paddingVertical="14dp"
+            android:visibility="gone"
             tools:listitem="@layout/item_filter_thumbnail" />
 
-        <LinearLayout
-            android:id="@+id/toolsRow"
+        <HorizontalScrollView
+            android:id="@+id/cropSheetPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:paddingHorizontal="16dp"
-            android:paddingTop="10dp">
+            android:paddingVertical="16dp"
+            android:scrollbars="none"
+            android:visibility="gone">
 
-            <Button
-                android:id="@+id/rotateButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_button_ghost"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:enabled="false"
-                android:fontFamily="@font/inter_medium"
-                android:letterSpacing="0.01"
-                android:paddingHorizontal="4dp"
-                android:text="@string/action_rotate"
-                android:textAllCaps="false"
-                android:textColor="@color/accent_blue"
-                android:textSize="13sp"
-                android:elevation="0dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/cropButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_button_ghost"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:enabled="false"
-                android:fontFamily="@font/inter_medium"
-                android:letterSpacing="0.01"
-                android:paddingHorizontal="4dp"
-                android:text="@string/action_crop"
-                android:textAllCaps="false"
-                android:textColor="@color/accent_blue"
-                android:textSize="13sp"
-                android:elevation="0dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/cropOriginalButton" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/cropSquareButton" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/cropFourThreeButton" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/cropSixteenNineButton" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/rotateButton" android:layout_marginStart="14dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/flipButton" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/resize75Button" android:layout_marginStart="14dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/resize100Button" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/resize125Button" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/resize150Button" android:layout_marginStart="8dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/resize200Button" android:layout_marginStart="8dp" />
 
-            <Button
-                android:id="@+id/adjustToggleButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_button_ghost"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:enabled="false"
-                android:fontFamily="@font/inter_medium"
-                android:letterSpacing="0.01"
-                android:paddingHorizontal="4dp"
-                android:text="@string/filter_adjust"
-                android:textAllCaps="false"
-                android:textColor="@color/accent_blue"
-                android:textSize="13sp"
-                android:elevation="0dp" />
+            </LinearLayout>
 
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/aiEnhanceButton"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_button_primary"
-            android:backgroundTint="@null"
-            app:backgroundTint="@null"
-            android:enabled="false"
-            android:fontFamily="@font/inter_semibold"
-            android:letterSpacing="0.01"
-            android:text="@string/action_ai_enhance"
-            android:textAllCaps="false"
-            android:textColor="@color/text_on_accent"
-            android:elevation="0dp" />
+        </HorizontalScrollView>
 
         <LinearLayout
-            android:id="@+id/adjustPanel"
+            android:id="@+id/adjustSheetPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="20dp"
-            android:paddingTop="4dp"
+            android:paddingTop="14dp"
             android:visibility="gone">
 
             <TextView
@@ -199,8 +147,8 @@
                 android:layout_height="wrap_content"
                 android:max="200"
                 android:progress="100"
-                android:progressTint="@color/accent_blue"
-                android:thumbTint="@color/accent_blue" />
+                android:progressTint="@color/accent_yellow"
+                android:thumbTint="@color/accent_yellow" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -216,8 +164,8 @@
                 android:layout_height="wrap_content"
                 android:max="200"
                 android:progress="100"
-                android:progressTint="@color/accent_blue"
-                android:thumbTint="@color/accent_blue" />
+                android:progressTint="@color/accent_yellow"
+                android:thumbTint="@color/accent_yellow" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -233,40 +181,83 @@
                 android:layout_height="wrap_content"
                 android:max="200"
                 android:progress="100"
-                android:progressTint="@color/accent_blue"
-                android:thumbTint="@color/accent_blue" />
+                android:progressTint="@color/accent_yellow"
+                android:thumbTint="@color/accent_yellow" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/adjust_hue"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/hueSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="360"
+                android:progress="180"
+                android:progressTint="@color/accent_purple"
+                android:thumbTint="@color/accent_purple" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/adjust_exposure"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/exposureSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="200"
+                android:progress="100"
+                android:progressTint="@color/accent_teal"
+                android:thumbTint="@color/accent_teal" />
 
         </LinearLayout>
 
+        <HorizontalScrollView
+            android:id="@+id/aiSheetPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="16dp"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiEnhanceButton" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiSharpenButton" android:layout_marginStart="10dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiDenoiseButton" android:layout_marginStart="10dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiUpscaleButton" android:layout_marginStart="10dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiBgRemovalButton" android:layout_marginStart="10dp" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
         <LinearLayout
-            android:id="@+id/actionBar"
+            android:id="@+id/exportSheetPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
-            android:paddingTop="12dp">
-
-            <Button
-                android:id="@+id/pickImageButton"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_button_solid"
-                android:backgroundTint="@null"
-                app:backgroundTint="@null"
-                android:fontFamily="@font/inter_semibold"
-                android:letterSpacing="0.01"
-                android:text="@string/action_pick_image"
-                android:textAllCaps="false"
-                android:textColor="@color/text_on_accent"
-                android:elevation="0dp" />
+            android:paddingVertical="16dp"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/saveButton"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_button_primary"
                 android:backgroundTint="@null"
                 app:backgroundTint="@null"
@@ -292,11 +283,178 @@
                 android:letterSpacing="0.01"
                 android:text="@string/action_share"
                 android:textAllCaps="false"
-                android:textColor="@color/accent_blue"
+                android:textColor="@color/accent_yellow"
                 android:elevation="0dp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- Fixed icon-only editing toolbar — always visible, drawn above toolSheet's bottom edge. -->
+    <LinearLayout
+        android:id="@+id/bottomNavBar"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_sheet_top_rounded"
+        android:elevation="20dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/navFiltersButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navFiltersIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_filters"
+                android:src="@drawable/ic_tab_filters"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navFiltersLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_filters"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navCropButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navCropIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_crop"
+                android:src="@drawable/ic_ratio_original"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navCropLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_crop"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAdjustButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navAdjustIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_adjust"
+                android:src="@drawable/ic_tab_adjust"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navAdjustLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_adjust"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAiButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navAiIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_ai"
+                android:src="@drawable/ic_tab_ai"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navAiLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_ai"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navExportButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navExportIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_export"
+                android:src="@drawable/ic_tab_export"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navExportLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_export"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

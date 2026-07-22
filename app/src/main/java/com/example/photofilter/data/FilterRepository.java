@@ -6,9 +6,12 @@ import com.example.photofilter.R;
 import com.example.photofilter.domain.filter.BlurFilter;
 import com.example.photofilter.domain.filter.BrightnessContrastFilter;
 import com.example.photofilter.domain.filter.ColorToneFilter;
+import com.example.photofilter.domain.filter.FilmFilter;
 import com.example.photofilter.domain.filter.GrayscaleFilter;
+import com.example.photofilter.domain.filter.MonoFilter;
 import com.example.photofilter.domain.filter.NegativeFilter;
 import com.example.photofilter.domain.filter.OriginalFilter;
+import com.example.photofilter.domain.filter.RetroFilter;
 import com.example.photofilter.domain.filter.SepiaFilter;
 import com.example.photofilter.domain.filter.VignetteFilter;
 import com.example.photofilter.domain.filter.VintageFilter;
@@ -36,6 +39,9 @@ public class FilterRepository {
         items.add(new FilterItem("vintage", context.getString(R.string.filter_vintage), new VintageFilter()));
         items.add(new FilterItem("vignette", context.getString(R.string.filter_vignette), new VignetteFilter()));
         items.add(new FilterItem("blur", context.getString(R.string.filter_blur), new BlurFilter()));
+        items.add(new FilterItem("film", context.getString(R.string.filter_film), new FilmFilter()));
+        items.add(new FilterItem("mono", context.getString(R.string.filter_mono), new MonoFilter()));
+        items.add(new FilterItem("retro", context.getString(R.string.filter_retro), new RetroFilter()));
         return Collections.unmodifiableList(items);
     }
 }

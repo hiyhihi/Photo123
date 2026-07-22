@@ -14,7 +14,7 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -29,11 +29,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photofilter.R;
+import com.example.photofilter.data.CropRatio;
 import com.example.photofilter.data.FilterItem;
 import com.example.photofilter.presenter.EditorContract;
 import com.example.photofilter.presenter.EditorPresenter;
 import com.example.photofilter.presenter.FilterThumbnail;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.util.List;
 import java.util.Set;
@@ -41,25 +43,44 @@ import java.util.Set;
 /**
  * View layer only: renders whatever {@link EditorPresenter} tells it to and
  * forwards user actions back to the presenter. No filter/bitmap logic here.
+ *
+ * <p>UI shape: a fixed 5-icon bottom nav (Filters/Crop/Adjust/AI/Export) drives
+ * a single Material {@link BottomSheetBehavior} whose content swaps between five
+ * panels — only one tab is ever open at a time.
  */
 public class MainActivity extends AppCompatActivity implements EditorContract.View {
 
+    public static final String EXTRA_AUTO_ACTION = "com.example.photofilter.extra.AUTO_ACTION";
+    public static final String AUTO_ACTION_PICK = "pick";
+    public static final String AUTO_ACTION_CAMERA = "camera";
+    public static final String AUTO_ACTION_PICK_THEN_AI = "pick_then_ai";
+
     private static final int ADJUST_DEBOUNCE_MS = 120;
+    private static final int TAB_FILTERS = 0;
+    private static final int TAB_CROP = 1;
+    private static final int TAB_ADJUST = 2;
+    private static final int TAB_AI = 3;
+    private static final int TAB_EXPORT = 4;
 
     private ImageView mainImageView;
     private TextView emptyStateText;
     private ProgressBar progressBar;
-    private Button pickImageButton;
-    private Button saveButton;
-    private Button shareButton;
-    private Button rotateButton;
-    private Button cropButton;
-    private Button adjustToggleButton;
-    private Button aiEnhanceButton;
-    private View adjustPanel;
+
+    private BottomSheetBehavior<FrameLayout> sheetBehavior;
+    private View[] panels;
+    private View[] navButtons;
+    private ImageView[] navIcons;
+    private TextView[] navLabels;
+    private int activeTab = -1;
+    private int pendingTab = -1;
+
     private SeekBar brightnessSeekBar;
     private SeekBar contrastSeekBar;
     private SeekBar saturationSeekBar;
+    private SeekBar hueSeekBar;
+    private SeekBar exposureSeekBar;
+    private View saveButton;
+    private View shareButton;
 
     private FilterAdapter filterAdapter;
     private EditorContract.Presenter presenter;
@@ -72,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private Runnable pendingStorageAction;
     private Uri pendingCameraUri;
+    private boolean openAiTabOnNextImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,42 +104,158 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        toolbar.setNavigationOnClickListener(v -> finish());
         GradientTextHelper.applyBrandGradient(findViewById(R.id.wordmarkText));
 
         mainImageView = findViewById(R.id.mainImageView);
         emptyStateText = findViewById(R.id.emptyStateText);
         progressBar = findViewById(R.id.progressBar);
-        pickImageButton = findViewById(R.id.pickImageButton);
-        saveButton = findViewById(R.id.saveButton);
-        shareButton = findViewById(R.id.shareButton);
-        rotateButton = findViewById(R.id.rotateButton);
-        cropButton = findViewById(R.id.cropButton);
-        adjustToggleButton = findViewById(R.id.adjustToggleButton);
-        aiEnhanceButton = findViewById(R.id.aiEnhanceButton);
-        adjustPanel = findViewById(R.id.adjustPanel);
-        brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
-        contrastSeekBar = findViewById(R.id.contrastSeekBar);
-        saturationSeekBar = findViewById(R.id.saturationSeekBar);
+        findViewById(R.id.imageContainer).setOnClickListener(v -> {
+            if (emptyStateText.getVisibility() == View.VISIBLE) {
+                showPickSourceDialog();
+            }
+        });
 
-        RecyclerView filterRecyclerView = findViewById(R.id.filterRecyclerView);
-        filterAdapter = new FilterAdapter(this::onFilterClicked, this::onFilterLongClicked);
-        filterRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        filterRecyclerView.setAdapter(filterAdapter);
+        setUpBottomSheet();
+        setUpFilterList();
+        setUpCropPanel();
+        setUpAdjustPanel();
+        setUpAiPanel();
+        setUpExportPanel();
 
         presenter = new EditorPresenter(this);
-
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onImagePicked);
         takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onPictureTaken);
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::onPermissionResult);
 
-        pickImageButton.setOnClickListener(v -> showPickSourceDialog());
-        saveButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onSaveClicked()));
-        shareButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onShareClicked()));
-        rotateButton.setOnClickListener(v -> presenter.onRotateRequested());
-        cropButton.setOnClickListener(v -> showCropDialog());
-        adjustToggleButton.setOnClickListener(v -> toggleAdjustPanel());
-        aiEnhanceButton.setOnClickListener(v -> presenter.onAiEnhanceRequested());
+        presenter.attachView(this);
+        runAutoActionIfRequested();
+    }
+
+    private void setUpBottomSheet() {
+        FrameLayout sheet = findViewById(R.id.toolSheet);
+        sheetBehavior = BottomSheetBehavior.from(sheet);
+        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN && pendingTab != -1) {
+                    int tab = pendingTab;
+                    pendingTab = -1;
+                    showTab(tab);
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            }
+
+            @Override
+            public void onSlide(View bottomSheet, float slideOffset) {
+                // no-op
+            }
+        });
+
+        panels = new View[]{
+                findViewById(R.id.filterRecyclerView),
+                findViewById(R.id.cropSheetPanel),
+                findViewById(R.id.adjustSheetPanel),
+                findViewById(R.id.aiSheetPanel),
+                findViewById(R.id.exportSheetPanel)
+        };
+        navButtons = new View[]{
+                findViewById(R.id.navFiltersButton),
+                findViewById(R.id.navCropButton),
+                findViewById(R.id.navAdjustButton),
+                findViewById(R.id.navAiButton),
+                findViewById(R.id.navExportButton)
+        };
+        navIcons = new ImageView[]{
+                findViewById(R.id.navFiltersIcon),
+                findViewById(R.id.navCropIcon),
+                findViewById(R.id.navAdjustIcon),
+                findViewById(R.id.navAiIcon),
+                findViewById(R.id.navExportIcon)
+        };
+        navLabels = new TextView[]{
+                findViewById(R.id.navFiltersLabel),
+                findViewById(R.id.navCropLabel),
+                findViewById(R.id.navAdjustLabel),
+                findViewById(R.id.navAiLabel),
+                findViewById(R.id.navExportLabel)
+        };
+        for (int i = 0; i < navButtons.length; i++) {
+            int tab = i;
+            navButtons[i].setOnClickListener(v -> onTabTapped(tab));
+        }
+    }
+
+    /** Tapping the open tab collapses it; tapping a different tab collapses the old one, then expands the new one once hidden. */
+    private void onTabTapped(int tab) {
+        boolean sheetOpen = sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
+                || sheetBehavior.getState() == BottomSheetBehavior.STATE_SETTLING;
+        if (activeTab == tab && sheetOpen) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            setNavSelected(-1);
+            activeTab = -1;
+            return;
+        }
+        if (sheetOpen) {
+            pendingTab = tab;
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        } else {
+            showTab(tab);
+            sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+    }
+
+    private void showTab(int tab) {
+        for (View panel : panels) {
+            panel.setVisibility(View.GONE);
+        }
+        panels[tab].setVisibility(View.VISIBLE);
+        setNavSelected(tab);
+        activeTab = tab;
+    }
+
+    private void setNavSelected(int tab) {
+        for (int i = 0; i < navIcons.length; i++) {
+            int color = ContextCompat.getColor(this, i == tab ? R.color.accent_yellow : R.color.text_muted);
+            navIcons[i].setColorFilter(color);
+            navLabels[i].setTextColor(color);
+        }
+    }
+
+    private void setUpFilterList() {
+        RecyclerView filterRecyclerView = findViewById(R.id.filterRecyclerView);
+        filterAdapter = new FilterAdapter(this::onFilterClicked, this::onFilterLongClicked);
+        filterRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        filterRecyclerView.setAdapter(filterAdapter);
+    }
+
+    private void setUpCropPanel() {
+        setUpToolIcon(R.id.cropOriginalButton, R.drawable.ic_ratio_original, R.string.crop_ratio_original,
+                () -> presenter.onCropRequested(CropRatio.ORIGINAL));
+        setUpToolIcon(R.id.cropSquareButton, R.drawable.ic_ratio_square, R.string.crop_ratio_square,
+                () -> presenter.onCropRequested(CropRatio.SQUARE));
+        setUpToolIcon(R.id.cropFourThreeButton, R.drawable.ic_ratio_four_three, R.string.crop_ratio_four_three,
+                () -> presenter.onCropRequested(CropRatio.FOUR_THREE));
+        setUpToolIcon(R.id.cropSixteenNineButton, R.drawable.ic_ratio_sixteen_nine, R.string.crop_ratio_sixteen_nine,
+                () -> presenter.onCropRequested(CropRatio.SIXTEEN_NINE));
+        setUpToolIcon(R.id.rotateButton, R.drawable.ic_rotate, R.string.action_rotate, () -> presenter.onRotateRequested());
+        setUpToolIcon(R.id.flipButton, R.drawable.ic_flip, R.string.action_flip, () -> presenter.onFlipRequested());
+        setUpToolIcon(R.id.resize75Button, R.drawable.ic_resize, R.string.resize_75, () -> presenter.onResizeRequested(75));
+        setUpToolIcon(R.id.resize100Button, R.drawable.ic_resize, R.string.resize_100, () -> presenter.onResizeRequested(100));
+        setUpToolIcon(R.id.resize125Button, R.drawable.ic_resize, R.string.resize_125, () -> presenter.onResizeRequested(125));
+        setUpToolIcon(R.id.resize150Button, R.drawable.ic_resize, R.string.resize_150, () -> presenter.onResizeRequested(150));
+        setUpToolIcon(R.id.resize200Button, R.drawable.ic_resize, R.string.resize_200, () -> presenter.onResizeRequested(200));
+    }
+
+    private void setUpAdjustPanel() {
+        brightnessSeekBar = findViewById(R.id.brightnessSeekBar);
+        contrastSeekBar = findViewById(R.id.contrastSeekBar);
+        saturationSeekBar = findViewById(R.id.saturationSeekBar);
+        hueSeekBar = findViewById(R.id.hueSeekBar);
+        exposureSeekBar = findViewById(R.id.exposureSeekBar);
 
         SeekBar.OnSeekBarChangeListener adjustListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -140,8 +278,33 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         brightnessSeekBar.setOnSeekBarChangeListener(adjustListener);
         contrastSeekBar.setOnSeekBarChangeListener(adjustListener);
         saturationSeekBar.setOnSeekBarChangeListener(adjustListener);
+        hueSeekBar.setOnSeekBarChangeListener(adjustListener);
+        exposureSeekBar.setOnSeekBarChangeListener(adjustListener);
+    }
 
-        presenter.attachView(this);
+    private void setUpAiPanel() {
+        setUpToolIcon(R.id.aiEnhanceButton, R.drawable.ic_tab_ai, R.string.ai_tool_enhance, () -> presenter.onAiEnhanceRequested());
+        setUpToolIcon(R.id.aiSharpenButton, R.drawable.ic_ai_sharpen, R.string.ai_tool_sharpen, () -> presenter.onSharpenRequested());
+        setUpToolIcon(R.id.aiDenoiseButton, R.drawable.ic_ai_denoise, R.string.ai_tool_remove_noise, () -> presenter.onRemoveNoiseRequested());
+        setUpToolIcon(R.id.aiUpscaleButton, R.drawable.ic_ai_upscale, R.string.ai_tool_upscale, () -> presenter.onUpscaleRequested());
+        setUpToolIcon(R.id.aiBgRemovalButton, R.drawable.ic_ai_bg_removal, R.string.ai_tool_background_removal, () -> presenter.onBackgroundRemovalRequested());
+    }
+
+    private void setUpExportPanel() {
+        saveButton = findViewById(R.id.saveButton);
+        shareButton = findViewById(R.id.shareButton);
+        saveButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onSaveClicked()));
+        shareButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onShareClicked()));
+    }
+
+    private void setUpToolIcon(int includeRootId, int iconRes, int labelRes, Runnable action) {
+        View root = findViewById(includeRootId);
+        ImageView icon = root.findViewById(R.id.toolIcon);
+        TextView label = root.findViewById(R.id.toolLabel);
+        icon.setImageResource(iconRes);
+        label.setText(labelRes);
+        root.setContentDescription(getString(labelRes));
+        root.setOnClickListener(v -> action.run());
     }
 
     @Override
@@ -159,11 +322,28 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_history) {
+        int id = item.getItemId();
+        if (id == R.id.action_pick_image) {
+            showPickSourceDialog();
+            return true;
+        }
+        if (id == R.id.action_history) {
             startActivity(new Intent(this, HistoryActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void runAutoActionIfRequested() {
+        String autoAction = getIntent().getStringExtra(EXTRA_AUTO_ACTION);
+        if (AUTO_ACTION_PICK.equals(autoAction)) {
+            pickImageLauncher.launch(new String[]{"image/*"});
+        } else if (AUTO_ACTION_CAMERA.equals(autoAction)) {
+            launchCamera();
+        } else if (AUTO_ACTION_PICK_THEN_AI.equals(autoAction)) {
+            openAiTabOnNextImage = true;
+            pickImageLauncher.launch(new String[]{"image/*"});
+        }
     }
 
     private void showPickSourceDialog() {
@@ -196,30 +376,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         pendingCameraUri = null;
     }
 
-    private void showCropDialog() {
-        String[] options = {
-                getString(R.string.crop_ratio_original),
-                getString(R.string.crop_ratio_square),
-                getString(R.string.crop_ratio_four_three),
-                getString(R.string.crop_ratio_sixteen_nine)
-        };
-        EditorContract.CropRatio[] ratios = {
-                EditorContract.CropRatio.ORIGINAL,
-                EditorContract.CropRatio.SQUARE,
-                EditorContract.CropRatio.FOUR_THREE,
-                EditorContract.CropRatio.SIXTEEN_NINE
-        };
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_crop_title)
-                .setItems(options, (dialog, which) -> presenter.onCropRequested(ratios[which]))
-                .show();
-    }
-
-    private void toggleAdjustPanel() {
-        boolean nowVisible = adjustPanel.getVisibility() != View.VISIBLE;
-        adjustPanel.setVisibility(nowVisible ? View.VISIBLE : View.GONE);
-    }
-
     private void scheduleAdjustApply() {
         mainHandler.removeCallbacks(adjustRunnable);
         mainHandler.postDelayed(adjustRunnable, ADJUST_DEBOUNCE_MS);
@@ -229,7 +385,9 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         int brightness = brightnessSeekBar.getProgress() - 100;
         int contrast = contrastSeekBar.getProgress();
         int saturation = saturationSeekBar.getProgress();
-        presenter.onAdjustValuesChanged(brightness, contrast, saturation);
+        int hue = hueSeekBar.getProgress() - 180;
+        int exposure = exposureSeekBar.getProgress() - 100;
+        presenter.onAdjustValuesChanged(brightness, contrast, saturation, hue, exposure);
     }
 
     private void onImagePicked(Uri uri) {
@@ -282,16 +440,20 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         emptyStateText.setVisibility(View.GONE);
         mainImageView.setImageBitmap(bitmap);
         saveButton.setEnabled(true);
-        shareButton.setEnabled(true);
-        rotateButton.setEnabled(true);
-        cropButton.setEnabled(true);
-        adjustToggleButton.setEnabled(true);
-        aiEnhanceButton.setEnabled(true);
+        shareButton.setEnabled(false);
+        for (View navButton : navButtons) {
+            navButton.setEnabled(true);
+        }
+        if (openAiTabOnNextImage) {
+            openAiTabOnNextImage = false;
+            onTabTapped(TAB_AI);
+        }
     }
 
     @Override
     public void showFilteredImage(Bitmap bitmap) {
         mainImageView.setImageBitmap(bitmap);
+        shareButton.setEnabled(false);
     }
 
     @Override
@@ -317,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     @Override
     public void showSaveResult(boolean success, Uri savedUri) {
         if (success) {
+            shareButton.setEnabled(true);
             Toast.makeText(this, R.string.save_success, Toast.LENGTH_SHORT).show();
         }
     }

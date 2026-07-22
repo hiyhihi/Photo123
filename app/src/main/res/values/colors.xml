@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- HATFilter brand palette — glassmorphism, light, blue/cyan gradient-forward. -->
-    <color name="bg_base">#F7F8FC</color>
-    <color name="bg_glow_top">#DCEBFF</color>
-    <color name="bg_surface">#F2F6FF</color>
-    <color name="bg_surface_alt">#E7EEFC</color>
-    <color name="glass_surface">#E6FFFFFF</color>
-    <color name="glass_stroke">#B3FFFFFF</color>
-    <color name="divider">#D8E2F5</color>
+    <!-- HATFilter brand palette — dark, black background with yellow accent. -->
+    <color name="bg_base">#0B0B0D</color>
+    <color name="bg_glow_top">#231C08</color>
+    <color name="bg_surface">#17171A</color>
+    <color name="bg_surface_alt">#232326</color>
+    <color name="glass_surface">#E6141416</color>
+    <color name="glass_stroke">#26FFFFFF</color>
+    <color name="divider">#2A2A2E</color>
 
-    <color name="accent_blue">#4A7DFF</color>
-    <color name="accent_cyan">#5DE2FF</color>
-    <color name="accent_blue_soft">#7FD9FF</color>
+    <color name="accent_yellow">#FFD60A</color>
+    <color name="accent_amber">#FFA500</color>
+    <color name="accent_yellow_soft">#FFE066</color>
 
-    <color name="text_primary">#1A1D29</color>
-    <color name="text_muted">#7B8194</color>
-    <color name="text_on_accent">#FFFFFF</color>
+    <!-- Confetti accents: decorative only (hero sparkles, per-card icon chips) — primary actions stay yellow. -->
+    <color name="accent_pink">#FF5CA8</color>
+    <color name="accent_purple">#A177FF</color>
+    <color name="accent_teal">#37D6C4</color>
 
-    <color name="filter_thumbnail_placeholder">#E7EEFC</color>
+    <color name="text_primary">#F5F5F7</color>
+    <color name="text_muted">#9A9AA2</color>
+    <color name="text_on_accent">#14120A</color>
+
+    <color name="filter_thumbnail_placeholder">#1F1F22</color>
+
+    <!-- Home screen only ("premium" brief: VSCO/Lightroom-style hero dashboard).
+         Kept separate from the editor's yellow brand palette above on purpose —
+         this screen has its own blue/cyan mood board. -->
+    <color name="home_bg">#0F1115</color>
+    <color name="home_surface">#1A1D24</color>
+    <color name="home_primary">#5B8CFF</color>
+    <color name="home_accent">#00D4FF</color>
+    <color name="home_text_muted">#9AA0AC</color>
+    <color name="home_hero_scrim_top">#000F1115</color>
+    <color name="home_hero_scrim_bottom">#CC0F1115</color>
 </resources>

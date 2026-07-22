@@ -112,9 +112,9 @@ git push origin main
 
 ---
 
-## Ngày 3 — Kiến trúc MVP + giao diện chính
+## Ngày 3 — Kiến trúc MVP + giao diện chính + màn Home
 
-**Chủ đề:** nối Presenter/Contract (tách View khỏi business logic) và dựng màn hình chỉnh sửa, theo hệ màu **glassmorphism xanh dương/cyan** làm chuẩn luôn từ đầu.
+**Chủ đề:** nối Presenter/Contract (tách View khỏi business logic), dựng màn hình chỉnh sửa dạng "accordion" (bấm mục lớn Bộ lọc/Cắt để xổ ra panel con — Cắt gồm cả Xoay/Lật), thêm màn Home chào mừng, theo hệ màu **nền đen + nút vàng** làm chuẩn luôn từ đầu.
 
 ### Tú Anh — 3 commit
 
@@ -143,17 +143,20 @@ git config user.email "<email_trantu>"
 git add app/src/main/java/com/example/photofilter/data/FilterRepository.java
 git commit -m "feat(data): dang ky filter Sepia, Am, Lanh, Sang vao FilterRepository"
 
+git add app/src/main/java/com/example/photofilter/data/CropRatio.java app/src/main/java/com/example/photofilter/data/CropUtils.java
+git commit -m "feat(data): them CropRatio va CropUtils (rotate, lat ngang, center-crop theo ty le)"
+
 git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/FilterThumbnail.java
-git commit -m "feat(presenter): them EditorContract dinh nghia hop dong MVP va FilterThumbnail view-model"
+git commit -m "feat(presenter): them EditorContract dinh nghia hop dong MVP (filter, rotate, flip, crop) va FilterThumbnail view-model"
 
 git add app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
-git commit -m "feat(presenter): them EditorPresenter dieu phoi luong nen va quan ly vong doi Bitmap"
+git commit -m "feat(presenter): them EditorPresenter dieu phoi luong nen, xu ly rotate/flip/crop qua CropUtils, quan ly vong doi Bitmap"
 
 git add app/src/test/java/com/example/photofilter/presenter/FakeView.java app/src/test/java/com/example/photofilter/presenter/ImmediateExecutorService.java app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
-git commit -m "test(presenter): them FakeView, ImmediateExecutorService va unit test EditorPresenter"
+git commit -m "test(presenter): them FakeView, ImmediateExecutorService va unit test EditorPresenter (gom rotate/flip/crop)"
 ```
 
-### Phan Lê Huy — 5 commit
+### Phan Lê Huy — 7 commit
 
 ```bash
 git checkout nhanh-huy
@@ -161,20 +164,130 @@ git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
 git add app/src/main/res/font/ app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml
-git commit -m "feat(ui): thiet lap font Sora/Inter va bang mau glassmorphism xanh duong"
+git commit -m "feat(ui): thiet lap font Sora/Inter va bang mau nen den, nhan vang"
 
-git add app/src/main/res/drawable/bg_button_ghost.xml app/src/main/res/drawable/bg_button_primary.xml app/src/main/res/drawable/bg_button_solid.xml app/src/main/res/drawable/bg_card_surface.xml app/src/main/res/drawable/bg_filter_thumbnail.xml app/src/main/res/drawable/bg_sheet_top_rounded.xml app/src/main/res/drawable/bg_glass_backdrop.xml app/src/main/res/drawable/selector_filter_selected.xml app/src/main/res/drawable/dot_accent.xml app/src/main/res/color/filter_name_text_color.xml
-git commit -m "feat(ui): them cac drawable nen kinh mo, gradient nut va vien chon filter"
+git add app/src/main/res/drawable/bg_button_ghost.xml app/src/main/res/drawable/bg_button_primary.xml app/src/main/res/drawable/bg_button_solid.xml app/src/main/res/drawable/bg_card_surface.xml app/src/main/res/drawable/bg_filter_thumbnail.xml app/src/main/res/drawable/bg_sheet_top_rounded.xml app/src/main/res/drawable/bg_glass_backdrop.xml app/src/main/res/drawable/bg_home_hero_glow.xml app/src/main/res/drawable/bg_icon_chip_circle.xml app/src/main/res/drawable/bg_ring_outline.xml app/src/main/res/drawable/selector_filter_selected.xml app/src/main/res/drawable/dot_accent.xml app/src/main/res/color/filter_name_text_color.xml
+git commit -m "feat(ui): them cac drawable nen, gradient nut vang, chip icon va vong tron trang tri"
 
-git add app/src/main/res/layout/activity_main.xml app/src/main/res/layout/item_filter_thumbnail.xml
-git commit -m "feat(ui): them layout man hinh chinh va item filter thumbnail"
+git add app/src/main/res/drawable/ic_ratio_original.xml app/src/main/res/drawable/ic_ratio_square.xml app/src/main/res/drawable/ic_ratio_four_three.xml app/src/main/res/drawable/ic_ratio_sixteen_nine.xml app/src/main/res/drawable/ic_rotate.xml app/src/main/res/drawable/ic_flip.xml
+git commit -m "feat(ui): them icon rieng cho tung tuy chon Cat (thay the nut chu bang icon tron nhieu mau)"
+
+git add app/src/main/res/layout/activity_main.xml app/src/main/res/layout/item_filter_thumbnail.xml app/src/main/res/menu/menu_main.xml app/src/main/res/values/strings.xml
+git commit -m "feat(ui): them layout man hinh chinh dang accordion (Bo loc/Cat), item filter thumbnail va menu Luu/Lich su"
 
 git add app/src/main/java/com/example/photofilter/ui/FilterAdapter.java app/src/main/java/com/example/photofilter/ui/GradientTextHelper.java
 git commit -m "feat(ui): them FilterAdapter va hieu ung gradient cho wordmark"
 
+git add app/src/main/res/layout/activity_home.xml app/src/main/java/com/example/photofilter/ui/HomeActivity.java
+git commit -m "feat(ui): them man Home chao mung (anh minh hoa + loi tat Chon anh/Chup anh/Lich su)"
+
 git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/AndroidManifest.xml
-git commit -m "feat(ui): them MainActivity - chon anh, ap filter, luu va chia se"
+git commit -m "feat(ui): them MainActivity - chon anh, ap filter, cat/xoay/lat, luu va chia se; HomeActivity la man launcher"
 ```
+
+### Bổ sung Ngày 3 — redesign thanh công cụ dạng bottom sheet icon-only (theo yêu cầu mới, cùng ngày)
+
+**Lý do:** trong lúc code Ngày 3, nhóm quyết định đổi từ accordion 3 nút sang bottom sheet 5 icon (Bộ lọc/Cắt/Tuỳ chỉnh/AI/Xuất) kiểu Lightroom/Snapseed, đồng thời mở rộng: thêm 3 filter (Film/Mono/Retro), Adjust có thêm Hue/Exposure, AI có thêm Sharpen/Khử nhiễu/Tăng độ phân giải (xử lý ảnh thuần) và Xoá nền (ML Kit Selfie Segmentation thật), Crop có thêm Resize.
+
+#### Tú Anh — 3 commit
+
+```bash
+git checkout nhanh-tuanh
+git config user.name "Tu Anh"
+git config user.email "<email_tuanh>"
+
+git add app/src/main/java/com/example/photofilter/domain/filter/FilmFilter.java app/src/main/java/com/example/photofilter/domain/filter/MonoFilter.java app/src/main/java/com/example/photofilter/domain/filter/RetroFilter.java
+git commit -m "feat(domain): trien khai FilmFilter, MonoFilter, RetroFilter"
+
+git add app/src/test/java/com/example/photofilter/domain/filter/FilmFilterTest.java app/src/test/java/com/example/photofilter/domain/filter/MonoFilterTest.java app/src/test/java/com/example/photofilter/domain/filter/RetroFilterTest.java
+git commit -m "test(domain): them unit test cho FilmFilter, MonoFilter, RetroFilter"
+
+git add app/src/main/java/com/example/photofilter/domain/filter/ColorAdjustFilter.java app/src/test/java/com/example/photofilter/domain/filter/ColorAdjustFilterTest.java
+git commit -m "feat(domain): mo rong ColorAdjustFilter them Hue (xoay mau sac) va Exposure (phoi sang)"
+```
+
+#### Trần Tú — 5 commit
+
+```bash
+git checkout nhanh-trantu
+git config user.name "Tran Tu"
+git config user.email "<email_trantu>"
+
+git add app/src/main/java/com/example/photofilter/data/AiToolsRepository.java
+git commit -m "feat(data): them AiToolsRepository - Sharpen, Remove Noise (median filter), Upscale"
+
+git add gradle/libs.versions.toml app/build.gradle.kts app/src/main/java/com/example/photofilter/data/BackgroundRemovalRepository.java
+git commit -m "feat(data): tich hop ML Kit Selfie Segmentation cho tinh nang Xoa nen"
+
+git add app/src/main/java/com/example/photofilter/data/CropUtils.java app/src/main/java/com/example/photofilter/data/FilterRepository.java
+git commit -m "feat(data): them CropUtils.resize va dang ky filter Film/Mono/Retro"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
+git commit -m "feat(presenter): mo rong contract cho Resize, Hue/Exposure va 4 cong cu AI moi (applyAiTool dung chung)"
+
+git add app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
+git commit -m "test(presenter): them test cho Resize, Sharpen, Remove Noise, Upscale"
+```
+
+#### Phan Lê Huy — 5 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/src/main/res/drawable/ic_tab_filters.xml app/src/main/res/drawable/ic_tab_adjust.xml app/src/main/res/drawable/ic_tab_ai.xml app/src/main/res/drawable/ic_tab_export.xml app/src/main/res/drawable/ic_resize.xml app/src/main/res/layout/item_tool_icon.xml
+git commit -m "feat(ui): them icon thanh dieu huong duoi va layout item_tool_icon dung chung"
+
+git add app/src/main/res/drawable/ic_adjust_contrast.xml app/src/main/res/drawable/ic_adjust_saturation.xml app/src/main/res/drawable/ic_adjust_hue.xml app/src/main/res/drawable/ic_adjust_exposure.xml app/src/main/res/drawable/ic_ai_sharpen.xml app/src/main/res/drawable/ic_ai_denoise.xml app/src/main/res/drawable/ic_ai_upscale.xml app/src/main/res/drawable/ic_ai_bg_removal.xml app/src/main/res/drawable/ic_export_save.xml app/src/main/res/drawable/ic_export_share.xml
+git commit -m "feat(ui): them icon cho tung cong cu Adjust/AI/Export"
+
+git add app/src/main/res/values/strings.xml app/src/main/res/menu/menu_main.xml
+git commit -m "feat(resource): them chuoi cho filter/cong cu moi, doi menu top bar chi con Chon anh + Lich su"
+
+git add app/src/main/res/layout/activity_main.xml
+git commit -m "feat(ui): viet lai activity_main thanh CoordinatorLayout + BottomSheetBehavior, thanh dieu huong 5 icon, bo het nut chu"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): viet lai MainActivity dieu khien bottom sheet (mot tab mo tai 1 thoi diem, chuyen tab muot)"
+```
+
+> **Lưu ý khi build:** tính năng Xoá nền cần tải model ML Kit lần đầu chạy (cần Internet, có thể chậm trên máy yếu/emulator) — đã test Enhance/Sharpen/Khử nhiễu/Resize/Crop/Save/Share trực tiếp trên emulator, riêng Xoá nền chưa test được đầy đủ vì giới hạn thời gian tải model.
+
+### Bổ sung Ngày 3 (lần 2) — màn Home cao cấp kiểu VSCO/Lightroom (theo yêu cầu mới, cùng ngày)
+
+**Lý do:** thiết kế lại toàn bộ màn Home: hero card 40% màn hình (gradient trừu tượng xanh dương/cyan thay ảnh người thật — chưa có nguồn ảnh, xem ghi chú cuối), tiêu đề "HatFilter", 4 thẻ Gallery/Camera/AI Enhance/History, dải "Recent Photos" lấy dữ liệu thật từ lịch sử đã lưu, cùng hoạt ảnh Ken Burns, fade-in, hạt sáng trôi, glow nhấp nháy, ripple và shared element transition sang màn Editor. **Toàn bộ việc này nằm trong package `ui` (không đụng domain/data/presenter)** nên dồn hết vào Phan Lê Huy — không chia giả cho công bằng.
+
+#### Phan Lê Huy — 7 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml
+git commit -m "feat(ui): them bang mau va ShapeAppearance rieng cho man Home, bat windowContentTransitions"
+
+git add app/src/main/res/drawable/bg_hero_gradient_base.xml app/src/main/res/drawable/bg_glow_blue.xml app/src/main/res/drawable/bg_glow_cyan.xml app/src/main/res/drawable/bg_hero_scrim.xml app/src/main/res/drawable/bg_card_ripple.xml app/src/main/res/drawable/bg_icon_glow_circle.xml
+git commit -m "feat(ui): them drawable gradient/glow cho hero va ripple/glow cho card Home"
+
+git add app/src/main/java/com/example/photofilter/ui/ParticleView.java app/src/main/java/com/example/photofilter/ui/RecentPhotoAdapter.java app/src/main/res/layout/item_home_card.xml app/src/main/res/layout/item_recent_photo.xml
+git commit -m "feat(ui): them ParticleView (hat sang troi), RecentPhotoAdapter va layout item dung chung"
+
+git add app/src/main/res/values/strings.xml
+git commit -m "feat(resource): them chuoi cho man Home cao cap (tieu de, 4 the, Recent Photos)"
+
+git add app/src/main/res/layout/activity_home.xml
+git commit -m "feat(ui): viet lai activity_home - hero 40 phan tram man hinh bo goc, 4 the 2x2, Recent Photos cuon ngang"
+
+git add app/src/main/java/com/example/photofilter/ui/HomeActivity.java
+git commit -m "feat(ui): viet lai HomeActivity - Ken Burns zoom, fade-in tuan tu, glow nhap nhay, tai Recent Photos tu SQLite"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/res/layout/activity_main.xml
+git commit -m "feat(ui): them shared element transition tu the Home sang anh Editor, auto-mo tab AI khi bam the AI Enhance"
+```
+
+> **Ghi chú quan trọng:** yêu cầu gốc cần "ảnh hero chân dung người thật, chỉnh màu điện ảnh" — mình không có công cụ tạo ảnh/kho ảnh stock nên đã thay bằng gradient + hoạ tiết trừu tượng (không phải logo, không phải ảnh giả). Muốn dùng ảnh thật: thay nội dung `heroBackgroundView` trong `activity_home.xml` (dòng có `android:id="@+id/heroBackgroundView"`) từ `<View>` thành `<ImageView android:src="@drawable/ten_anh_ban_them">`, đặt file ảnh vào `res/drawable/`.
 
 ### Cuối Ngày 3 — merge (Tú Anh)
 
@@ -276,9 +389,9 @@ git push origin main
 
 ---
 
-## Ngày 5 — Camera, Xoay, Cắt, Tuỳ chỉnh màu thời gian thực
+## Ngày 5 — Chụp ảnh (Camera) + Tuỳ chỉnh màu thời gian thực
 
-**Chủ đề:** hoàn thiện bộ công cụ chỉnh sửa nâng cao.
+**Chủ đề:** hoàn thiện bộ công cụ chỉnh sửa nâng cao. (Xoay/Cắt/Lật đã có từ Ngày 3 trong panel "Cắt" — Ngày 5 chỉ thêm Camera và panel "Tuỳ chỉnh" màu.)
 
 ### Tú Anh — 2 commit
 
@@ -305,10 +418,10 @@ git add app/src/main/java/com/example/photofilter/data/ImageRepository.java
 git commit -m "feat(data): them createCameraOutputUri tao noi luu anh chup qua MediaStore"
 
 git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
-git commit -m "feat(presenter): them CropRatio, onAdjustValuesChanged/onRotateRequested/onCropRequested va trien khai adjust/rotate/crop"
+git commit -m "feat(presenter): them onAdjustValuesChanged va tich hop ColorAdjustFilter thoi gian thuc"
 
 git add app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
-git commit -m "test(presenter): them test cho adjust va rotate"
+git commit -m "test(presenter): them test cho onAdjustValuesChanged"
 ```
 
 ### Phan Lê Huy — 2 commit
@@ -319,10 +432,10 @@ git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
 git add app/src/main/res/layout/activity_main.xml
-git commit -m "feat(ui): them hang nut Xoay/Cat/Tuy chinh va panel SeekBar dieu chinh mau"
+git commit -m "feat(ui): them nut Tuy chinh (accordion thu 3) va panel SeekBar dieu chinh mau"
 
 git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
-git commit -m "feat(ui): noi Camera (dialog chon nguon anh), Rotate, Crop va SeekBar vao MainActivity"
+git commit -m "feat(ui): noi Camera (dialog chon nguon anh) va SeekBar Tuy chinh vao MainActivity"
 ```
 
 ### Cuối Ngày 5 — merge (Tú Anh)
@@ -418,10 +531,10 @@ git push -u origin main
 
 | Người | Số commit | Vai trò xuyên suốt |
 | --- | --- | --- |
-| Tú Anh (nhóm trưởng) | 20 (7+3+6+2+2) | Filter engine (interface/abstract class), README, rà soát & test cuối, người merge nhánh mỗi ngày |
-| Trần Tú | 19 (3+4+6+3+3) | Data/Presenter, SQLite (History + Favorite), tích hợp AI |
-| Phan Lê Huy | 15 (+3 Ngày 1) = 18 (1+5+4+2+3) | Gradle scaffold, UI/theme, màn Lịch sử, thương hiệu HATFilter |
+| Tú Anh (nhóm trưởng) | 23 (7+3+3+6+2+2) | Filter engine (interface/abstract class), README, rà soát & test cuối, người merge nhánh mỗi ngày |
+| Trần Tú | 25 (3+5+5+6+3+3) | Data/Presenter, CropUtils, SQLite (History + Favorite), tích hợp AI (Gemini + ML Kit) |
+| Phan Lê Huy | 29 (+3 Ngày 1) = 32 (1+7+5+7+4+2+3) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter |
 
-Giờ đã khá đều: 20 / 19 / 18. Những file bị sửa lại nhiều lần (EditorContract, EditorPresenter, FilterRepository) được gộp chung với phần code mới trong cùng 1 commit thay vì tách quá nhỏ, cho gần với thực tế commit chuyên nghiệp hơn.
+Ngày 3 phình to nhất và giờ lệch hẳn về Phan Lê Huy (23 / 25 / 32) vì 2 đợt redesign liên tiếp trong cùng ngày (bottom sheet + màn Home) đều là việc UI thuần, không đụng domain/data/presenter nên không có gì hợp lý để chia cho Tú Anh/Trần Tú. Nếu muốn cân lại cho đều: có thể chuyển 2-3 commit thuần tài nguyên (ví dụ commit `colors.xml`/`themes.xml` hoặc commit `strings.xml`) sang cho Trần Tú hoặc Tú Anh đứng tên, vì đây chỉ là khai báo dữ liệu, không đòi hỏi hiểu sâu về UI. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
 
 **File này chỉ để tham khảo khi commit**, có thể xoá khỏi repo trước khi nộp bài nếu muốn cây thư mục gọn hơn.

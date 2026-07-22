@@ -2,13 +2,16 @@ package com.example.photofilter.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.example.photofilter.BuildConfig;
 import com.example.photofilter.R;
+import com.example.photofilter.data.AiToolsRepository;
+import com.example.photofilter.data.BackgroundRemovalRepository;
+import com.example.photofilter.data.CropRatio;
+import com.example.photofilter.data.CropUtils;
 import com.example.photofilter.data.FavoriteRepository;
 import com.example.photofilter.data.FilterItem;
 import com.example.photofilter.data.FilterRepository;
@@ -35,6 +38,8 @@ public class EditorPresenter implements EditorContract.Presenter {
     private final HistoryRepository historyRepository;
     private final FavoriteRepository favoriteRepository;
     private final GeminiEnhanceRepository aiEnhanceRepository = new GeminiEnhanceRepository();
+    private final AiToolsRepository aiToolsRepository = new AiToolsRepository();
+    private final BackgroundRemovalRepository backgroundRemovalRepository = new BackgroundRemovalRepository();
     private final ExecutorService executor;
     private final Handler mainHandler;
 
@@ -222,14 +227,14 @@ public class EditorPresenter implements EditorContract.Presenter {
     }
 
     @Override
-    public void onAdjustValuesChanged(int brightness, int contrast, int saturation) {
+    public void onAdjustValuesChanged(int brightness, int contrast, int saturation, int hue, int exposure) {
         final Bitmap source = originalBitmap;
         if (source == null) {
             return;
         }
         final int myRequestId = ++requestId;
         executor.execute(() -> {
-            Bitmap result = new ColorAdjustFilter(brightness, contrast, saturation).apply(source);
+            Bitmap result = new ColorAdjustFilter(brightness, contrast, saturation, hue, exposure).apply(source);
             mainHandler.post(() -> {
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
@@ -247,52 +252,88 @@ public class EditorPresenter implements EditorContract.Presenter {
 
     @Override
     public void onRotateRequested() {
+        applyGeometryChange(CropUtils::rotate90);
+    }
+
+    @Override
+    public void onFlipRequested() {
+        applyGeometryChange(CropUtils::flipHorizontal);
+    }
+
+    @Override
+    public void onCropRequested(CropRatio ratio) {
+        if (ratio == CropRatio.ORIGINAL) {
+            return;
+        }
+        applyGeometryChange(source -> CropUtils.centerCrop(source, ratio));
+    }
+
+    @Override
+    public void onResizeRequested(int scalePercent) {
+        if (scalePercent == 100) {
+            return;
+        }
+        applyGeometryChange(source -> CropUtils.resize(source, scalePercent));
+    }
+
+    /** Shared plumbing for rotate/flip/crop: all replace originalBitmap and regenerate thumbnails the same way. */
+    private void applyGeometryChange(GeometryOp op) {
         final Bitmap source = originalBitmap;
         if (source == null) {
             return;
         }
         final int myRequestId = ++requestId;
         executor.execute(() -> {
-            Matrix matrix = new Matrix();
-            matrix.postRotate(90f);
-            Bitmap rotated = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+            Bitmap result = op.apply(source);
             mainHandler.post(() -> {
                 if (myRequestId != requestId || view == null) {
-                    rotated.recycle();
+                    result.recycle();
                     return;
                 }
-                replaceOriginalBitmap(rotated);
+                replaceOriginalBitmap(result);
                 lastSavedUri = null;
-                view.showOriginalImage(rotated);
-                generateThumbnails(myRequestId, rotated);
+                view.showOriginalImage(result);
+                generateThumbnails(myRequestId, result);
             });
         });
     }
 
-    @Override
-    public void onCropRequested(EditorContract.CropRatio ratio) {
-        final Bitmap source = originalBitmap;
-        if (source == null || ratio == EditorContract.CropRatio.ORIGINAL) {
-            return;
-        }
-        final int myRequestId = ++requestId;
-        executor.execute(() -> {
-            Bitmap cropped = centerCrop(source, targetRatio(ratio));
-            mainHandler.post(() -> {
-                if (myRequestId != requestId || view == null) {
-                    cropped.recycle();
-                    return;
-                }
-                replaceOriginalBitmap(cropped);
-                lastSavedUri = null;
-                view.showOriginalImage(cropped);
-                generateThumbnails(myRequestId, cropped);
-            });
-        });
+    private interface GeometryOp {
+        Bitmap apply(Bitmap source);
     }
 
     @Override
     public void onAiEnhanceRequested() {
+        applyAiTool(appContext.getString(R.string.action_ai_enhance), appContext.getString(R.string.error_ai_enhance),
+                source -> aiEnhanceRepository.enhance(source, BuildConfig.GEMINI_API_KEY));
+    }
+
+    @Override
+    public void onSharpenRequested() {
+        applyAiTool(appContext.getString(R.string.ai_tool_sharpen), appContext.getString(R.string.error_ai_tool),
+                aiToolsRepository::sharpen);
+    }
+
+    @Override
+    public void onRemoveNoiseRequested() {
+        applyAiTool(appContext.getString(R.string.ai_tool_remove_noise), appContext.getString(R.string.error_ai_tool),
+                aiToolsRepository::removeNoise);
+    }
+
+    @Override
+    public void onUpscaleRequested() {
+        applyAiTool(appContext.getString(R.string.ai_tool_upscale), appContext.getString(R.string.error_ai_tool),
+                aiToolsRepository::upscale);
+    }
+
+    @Override
+    public void onBackgroundRemovalRequested() {
+        applyAiTool(appContext.getString(R.string.ai_tool_background_removal), appContext.getString(R.string.error_ai_tool),
+                backgroundRemovalRepository::removeBackground);
+    }
+
+    /** Shared plumbing for every "AI tool": takes the currently displayed bitmap, runs {@code op} in the background. */
+    private void applyAiTool(String resultLabel, String errorMessage, BitmapOp op) {
         final Bitmap source = currentFilteredBitmap != null ? currentFilteredBitmap : originalBitmap;
         if (source == null) {
             return;
@@ -303,7 +344,7 @@ public class EditorPresenter implements EditorContract.Presenter {
         }
         executor.execute(() -> {
             try {
-                Bitmap result = aiEnhanceRepository.enhance(source, BuildConfig.GEMINI_API_KEY);
+                Bitmap result = op.apply(source);
                 mainHandler.post(() -> {
                     if (myRequestId != requestId || view == null) {
                         result.recycle();
@@ -311,7 +352,7 @@ public class EditorPresenter implements EditorContract.Presenter {
                     }
                     Bitmap old = currentFilteredBitmap;
                     currentFilteredBitmap = result;
-                    currentFilterLabel = appContext.getString(R.string.action_ai_enhance);
+                    currentFilterLabel = resultLabel;
                     lastSavedUri = null;
                     view.showLoading(false);
                     view.showFilteredImage(result);
@@ -323,10 +364,14 @@ public class EditorPresenter implements EditorContract.Presenter {
                         return;
                     }
                     view.showLoading(false);
-                    view.showError(appContext.getString(R.string.error_ai_enhance));
+                    view.showError(errorMessage);
                 });
             }
         });
+    }
+
+    private interface BitmapOp {
+        Bitmap apply(Bitmap source) throws IOException;
     }
 
     /** Swaps in a new original bitmap (new image picked, rotated, or cropped), recycling whatever came before. */
@@ -338,35 +383,6 @@ public class EditorPresenter implements EditorContract.Presenter {
         currentFilteredBitmap = null;
         currentThumbnails = null;
         currentFilterLabel = null;
-    }
-
-    private static float targetRatio(EditorContract.CropRatio ratio) {
-        switch (ratio) {
-            case SQUARE:
-                return 1f;
-            case FOUR_THREE:
-                return 4f / 3f;
-            case SIXTEEN_NINE:
-                return 16f / 9f;
-            default:
-                return 1f;
-        }
-    }
-
-    private static Bitmap centerCrop(Bitmap source, float targetRatio) {
-        int width = source.getWidth();
-        int height = source.getHeight();
-        float currentRatio = (float) width / height;
-        int cropWidth = width;
-        int cropHeight = height;
-        if (currentRatio > targetRatio) {
-            cropWidth = Math.round(height * targetRatio);
-        } else {
-            cropHeight = Math.round(width / targetRatio);
-        }
-        int x = (width - cropWidth) / 2;
-        int y = (height - cropHeight) / 2;
-        return Bitmap.createBitmap(source, x, y, cropWidth, cropHeight);
     }
 
     @Override

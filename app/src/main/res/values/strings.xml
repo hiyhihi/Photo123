@@ -12,6 +12,9 @@
     <string name="filter_vignette">Viền tối</string>
     <string name="filter_blur">Mờ nhẹ</string>
     <string name="filter_adjust">Tuỳ chỉnh</string>
+    <string name="filter_film">Film</string>
+    <string name="filter_mono">Mono</string>
+    <string name="filter_retro">Retro</string>
 
     <string name="action_pick_image">Chọn ảnh</string>
     <string name="action_save">Lưu</string>
@@ -20,18 +23,40 @@
     <string name="action_library">Thư viện</string>
     <string name="action_rotate">Xoay</string>
     <string name="action_crop">Cắt</string>
+    <string name="action_flip">Lật</string>
+    <string name="action_resize">Đổi cỡ</string>
     <string name="action_ai_enhance">AI tăng cường</string>
+    <string name="section_filters">Bộ lọc</string>
+
+    <string name="nav_filters">Bộ lọc</string>
+    <string name="nav_crop">Cắt</string>
+    <string name="nav_adjust">Tuỳ chỉnh</string>
+    <string name="nav_ai">AI</string>
+    <string name="nav_export">Xuất</string>
 
     <string name="dialog_pick_source_title">Chọn ảnh từ đâu?</string>
-    <string name="dialog_crop_title">Chọn tỷ lệ cắt</string>
     <string name="crop_ratio_original">Gốc</string>
     <string name="crop_ratio_square">1:1</string>
     <string name="crop_ratio_four_three">4:3</string>
     <string name="crop_ratio_sixteen_nine">16:9</string>
+    <string name="resize_75">75%</string>
+    <string name="resize_100">100%</string>
+    <string name="resize_125">125%</string>
+    <string name="resize_150">150%</string>
+    <string name="resize_200">200%</string>
 
     <string name="adjust_brightness">Độ sáng</string>
     <string name="adjust_contrast">Tương phản</string>
     <string name="adjust_saturation">Bão hoà</string>
+    <string name="adjust_hue">Sắc độ</string>
+    <string name="adjust_exposure">Phơi sáng</string>
+
+    <string name="ai_tool_enhance">Tăng cường</string>
+    <string name="ai_tool_sharpen">Làm nét</string>
+    <string name="ai_tool_remove_noise">Khử nhiễu</string>
+    <string name="ai_tool_upscale">Tăng độ phân giải</string>
+    <string name="ai_tool_background_removal">Xoá nền</string>
+    <string name="error_ai_tool">Không thể xử lý ảnh bằng AI lúc này</string>
 
     <string name="empty_state_message">Chọn ảnh để bắt đầu</string>
     <string name="share_chooser_title">Chia sẻ ảnh qua</string>
@@ -51,6 +76,19 @@
     <string name="menu_history">Lịch sử</string>
     <string name="history_title">Lịch sử chỉnh sửa</string>
     <string name="history_empty">Chưa có ảnh nào được lưu</string>
+
+    <string name="home_hero_title">HatFilter</string>
+    <string name="home_hero_subtitle">Transform every photo beautifully.</string>
+    <string name="home_card_gallery">Gallery</string>
+    <string name="home_card_gallery_subtitle">Pick from library</string>
+    <string name="home_card_camera">Camera</string>
+    <string name="home_card_camera_subtitle">Capture the moment</string>
+    <string name="home_card_ai_enhance">AI Enhance</string>
+    <string name="home_card_ai_enhance_subtitle">One-tap magic</string>
+    <string name="home_card_history">History</string>
+    <string name="home_card_history_subtitle">Your saved edits</string>
+    <string name="home_recent_photos_title">Recent Photos</string>
+    <string name="home_recent_photos_empty">No photos yet — start editing to see them here</string>
 
     <string name="ai_enhance_progress">AI đang xử lý ảnh…</string>
     <string name="ai_enhance_success">Đã tăng cường ảnh bằng AI</string>

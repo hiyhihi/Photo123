@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.photofilter.R;
 
-/** Paints the HATFilter brand gradient (blue → cyan) onto a TextView's text. */
+/** Paints the HATFilter brand gradient (yellow → amber) onto a TextView's text. */
 final class GradientTextHelper {
 
     private GradientTextHelper() {
@@ -24,8 +24,8 @@ final class GradientTextHelper {
             }
             Shader shader = new LinearGradient(
                     0, 0, width, 0,
-                    ContextCompat.getColor(textView.getContext(), R.color.accent_blue),
-                    ContextCompat.getColor(textView.getContext(), R.color.accent_cyan),
+                    ContextCompat.getColor(textView.getContext(), R.color.accent_yellow),
+                    ContextCompat.getColor(textView.getContext(), R.color.accent_amber),
                     Shader.TileMode.CLAMP);
             textView.getPaint().setShader(shader);
             textView.invalidate();

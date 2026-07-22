@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.glide)
     implementation(libs.exifinterface)
+    implementation(libs.mlkit.segmentation.selfie)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockito.core)
