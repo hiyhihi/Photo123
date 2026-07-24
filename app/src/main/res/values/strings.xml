@@ -66,6 +66,10 @@
     <string name="save_success">Đã lưu ảnh vào thư viện</string>
     <string name="permission_denied">Cần quyền lưu trữ để lưu ảnh</string>
 
+    <string name="save_result_title">Đã lưu ảnh</string>
+    <string name="action_edit_more">Chỉnh sửa thêm</string>
+    <string name="content_desc_save_result_image">Ảnh vừa lưu</string>
+
     <string name="error_open_image">Không thể mở ảnh này</string>
     <string name="error_save_image">Không thể lưu ảnh</string>
     <string name="error_camera">Không thể mở camera</string>

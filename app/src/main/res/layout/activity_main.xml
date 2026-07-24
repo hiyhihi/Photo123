@@ -46,8 +46,7 @@
         android:id="@+id/imageContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:padding="20dp">
+        android:layout_marginTop="?attr/actionBarSize">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/mainImageView"
@@ -56,10 +55,7 @@
             android:scaleType="fitCenter"
             android:background="@color/bg_surface"
             android:contentDescription="@string/content_desc_main_image"
-            android:transitionName="editorPhotoCanvas"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.HAT.RoundedImage"
-            app:strokeColor="@color/glass_stroke"
-            app:strokeWidth="1dp" />
+            android:transitionName="editorPhotoCanvas" />
 
         <TextView
             android:id="@+id/emptyStateText"
@@ -113,7 +109,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/filterRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="112dp"
+            android:layout_height="134dp"
             android:clipToPadding="false"
             android:paddingHorizontal="12dp"
             android:paddingVertical="14dp"

@@ -112,9 +112,11 @@ git push origin main
 
 ---
 
-## Ngày 3 — Kiến trúc MVP + giao diện chính + màn Home
+## Ngày 3 — Kiến trúc MVP + giao diện chính + màn Home — ĐÃ COMMIT ✅
 
 **Chủ đề:** nối Presenter/Contract (tách View khỏi business logic), dựng màn hình chỉnh sửa dạng "accordion" (bấm mục lớn Bộ lọc/Cắt để xổ ra panel con — Cắt gồm cả Xoay/Lật), thêm màn Home chào mừng, theo hệ màu **nền đen + nút vàng** làm chuẩn luôn từ đầu.
+
+**Cả 3 người đã commit xong phần này** (Tú Anh 3 commit, Trần Tú 4 commit, Phan Lê Huy 7 commit ở dưới). Phần **"Bổ sung Ngày 3"** và **"Bổ sung Ngày 3 (lần 2)"** ngay sau đây là redesign phát sinh thêm cùng ngày — **CHƯA commit**, làm tiếp theo thứ tự bên dưới.
 
 ### Tú Anh — 3 commit
 
@@ -185,7 +187,7 @@ git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/m
 git commit -m "feat(ui): them MainActivity - chon anh, ap filter, cat/xoay/lat, luu va chia se; HomeActivity la man launcher"
 ```
 
-### Bổ sung Ngày 3 — redesign thanh công cụ dạng bottom sheet icon-only (theo yêu cầu mới, cùng ngày)
+### Bổ sung Ngày 3 — redesign thanh công cụ dạng bottom sheet icon-only (theo yêu cầu mới, cùng ngày) — CHƯA COMMIT ⏳
 
 **Lý do:** trong lúc code Ngày 3, nhóm quyết định đổi từ accordion 3 nút sang bottom sheet 5 icon (Bộ lọc/Cắt/Tuỳ chỉnh/AI/Xuất) kiểu Lightroom/Snapseed, đồng thời mở rộng: thêm 3 filter (Film/Mono/Retro), Adjust có thêm Hue/Exposure, AI có thêm Sharpen/Khử nhiễu/Tăng độ phân giải (xử lý ảnh thuần) và Xoá nền (ML Kit Selfie Segmentation thật), Crop có thêm Resize.
 
@@ -254,7 +256,7 @@ git commit -m "feat(ui): viet lai MainActivity dieu khien bottom sheet (mot tab 
 
 > **Lưu ý khi build:** tính năng Xoá nền cần tải model ML Kit lần đầu chạy (cần Internet, có thể chậm trên máy yếu/emulator) — đã test Enhance/Sharpen/Khử nhiễu/Resize/Crop/Save/Share trực tiếp trên emulator, riêng Xoá nền chưa test được đầy đủ vì giới hạn thời gian tải model.
 
-### Bổ sung Ngày 3 (lần 2) — màn Home cao cấp kiểu VSCO/Lightroom (theo yêu cầu mới, cùng ngày)
+### Bổ sung Ngày 3 (lần 2) — màn Home cao cấp kiểu VSCO/Lightroom (theo yêu cầu mới, cùng ngày) — CHƯA COMMIT ⏳
 
 **Lý do:** thiết kế lại toàn bộ màn Home: hero card 40% màn hình (gradient trừu tượng xanh dương/cyan thay ảnh người thật — chưa có nguồn ảnh, xem ghi chú cuối), tiêu đề "HatFilter", 4 thẻ Gallery/Camera/AI Enhance/History, dải "Recent Photos" lấy dữ liệu thật từ lịch sử đã lưu, cùng hoạt ảnh Ken Burns, fade-in, hạt sáng trôi, glow nhấp nháy, ripple và shared element transition sang màn Editor. **Toàn bộ việc này nằm trong package `ui` (không đụng domain/data/presenter)** nên dồn hết vào Phan Lê Huy — không chia giả cho công bằng.
 
@@ -290,6 +292,8 @@ git commit -m "feat(ui): them shared element transition tu the Home sang anh Edi
 > **Ghi chú quan trọng:** yêu cầu gốc cần "ảnh hero chân dung người thật, chỉnh màu điện ảnh" — mình không có công cụ tạo ảnh/kho ảnh stock nên đã thay bằng gradient + hoạ tiết trừu tượng (không phải logo, không phải ảnh giả). Muốn dùng ảnh thật: thay nội dung `heroBackgroundView` trong `activity_home.xml` (dòng có `android:id="@+id/heroBackgroundView"`) từ `<View>` thành `<ImageView android:src="@drawable/ten_anh_ban_them">`, đặt file ảnh vào `res/drawable/`.
 
 ### Cuối Ngày 3 — merge (Tú Anh)
+
+> Chạy merge này **sau khi** cả phần chính lẫn 2 phần "Bổ sung Ngày 3" ở trên đã commit xong hết (vẫn cùng 3 nhánh `nhanh-tuanh`/`nhanh-trantu`/`nhanh-huy` nên chỉ cần merge 1 lần).
 
 ```bash
 git checkout main

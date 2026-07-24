@@ -539,7 +539,9 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     public void showSaveResult(boolean success, Uri savedUri) {
         if (success) {
             shareUnlocked = true;
-            Toast.makeText(this, R.string.save_success, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SaveResultActivity.class);
+            intent.putExtra(SaveResultActivity.EXTRA_SAVED_URI, savedUri);
+            startActivity(intent);
         }
     }
 
