@@ -2,6 +2,7 @@ package com.example.photofilter.ui;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photofilter.R;
+import com.example.photofilter.data.AuthRepository;
 import com.example.photofilter.data.HistoryEntry;
 import com.example.photofilter.data.HistoryRepository;
 
@@ -37,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final AuthRepository authRepository = new AuthRepository();
     private HistoryRepository historyRepository;
 
     private View heroBackgroundView;
@@ -63,6 +66,7 @@ public class HomeActivity extends AppCompatActivity {
 
         setUpCards();
         setUpRecentPhotos();
+        setUpAccountButton();
         startKenBurnsZoom();
         fadeInCardsSequentially();
     }
@@ -127,6 +131,26 @@ public class HomeActivity extends AppCompatActivity {
         ActivityOptionsCompat options =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(this, sharedElement, "editorPhotoCanvas");
         startActivity(intent, options.toBundle());
+    }
+
+    private void setUpAccountButton() {
+        findViewById(R.id.accountButton).setOnClickListener(v -> confirmLogout());
+    }
+
+    private void confirmLogout() {
+        String email = authRepository.getCurrentUserEmail();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.logout_confirm_title)
+                .setMessage(getString(R.string.logout_confirm_message, email != null ? email : ""))
+                .setPositiveButton(R.string.action_logout, (dialog, which) -> {
+                    authRepository.signOut();
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                })
+                .setNegativeButton(R.string.action_cancel_dialog, null)
+                .show();
     }
 
     private void setUpRecentPhotos() {

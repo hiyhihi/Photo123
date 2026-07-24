@@ -70,6 +70,26 @@
     <string name="action_edit_more">Chỉnh sửa thêm</string>
     <string name="content_desc_save_result_image">Ảnh vừa lưu</string>
 
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_subtitle">Chỉnh sửa ảnh đẹp hơn mỗi ngày</string>
+    <string name="register_title">Đăng ký</string>
+    <string name="register_subtitle">Tạo tài khoản để bắt đầu</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="hint_confirm_password">Nhập lại mật khẩu</string>
+    <string name="action_login">Đăng nhập</string>
+    <string name="action_register">Đăng ký</string>
+    <string name="action_logout">Đăng xuất</string>
+    <string name="prompt_no_account">Chưa có tài khoản? Đăng ký</string>
+    <string name="prompt_have_account">Đã có tài khoản? Đăng nhập</string>
+    <string name="error_empty_fields">Vui lòng nhập đầy đủ thông tin</string>
+    <string name="error_password_mismatch">Mật khẩu nhập lại không khớp</string>
+    <string name="error_password_too_short">Mật khẩu cần ít nhất 6 ký tự</string>
+    <string name="logout_confirm_title">Đăng xuất</string>
+    <string name="logout_confirm_message">Bạn có chắc muốn đăng xuất khỏi %1$s?</string>
+    <string name="action_cancel_dialog">Huỷ</string>
+    <string name="content_desc_account">Tài khoản</string>
+
     <string name="error_open_image">Không thể mở ảnh này</string>
     <string name="error_save_image">Không thể lưu ảnh</string>
     <string name="error_camera">Không thể mở camera</string>

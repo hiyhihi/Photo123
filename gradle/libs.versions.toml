@@ -13,6 +13,8 @@ robolectric = "4.13"
 mockito = "5.7.0"
 exifinterface = "1.3.7"
 mlkitSegmentationSelfie = "16.0.0-beta6"
+googleServices = "4.4.2"
+firebaseBom = "33.5.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -28,7 +30,10 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 mlkit-segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie", version.ref = "mlkitSegmentationSelfie" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 

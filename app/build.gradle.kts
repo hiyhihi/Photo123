@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 // Loaded from local.properties, which is gitignored — the key never gets committed.
@@ -62,6 +63,8 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.exifinterface)
     implementation(libs.mlkit.segmentation.selfie)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockito.core)

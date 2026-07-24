@@ -74,6 +74,19 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <ImageButton
+        android:id="@+id/accountButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/content_desc_account"
+        android:padding="8dp"
+        android:src="@drawable/ic_logout"
+        app:layout_constraintTop_toTopOf="@id/heroCard"
+        app:layout_constraintEnd_toEndOf="@id/heroCard" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"

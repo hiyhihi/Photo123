@@ -135,7 +135,7 @@ git add app/src/main/java/com/example/photofilter/domain/filter/BrightnessContra
 git commit -m "feat(domain): trien khai BrightnessContrastFilter"
 ```
 
-### Trần Tú — 4 commit
+### Trần Tú — 5 commit
 
 ```bash
 git checkout nhanh-trantu
@@ -158,27 +158,18 @@ git add app/src/test/java/com/example/photofilter/presenter/FakeView.java app/sr
 git commit -m "test(presenter): them FakeView, ImmediateExecutorService va unit test EditorPresenter (gom rotate/flip/crop)"
 ```
 
-### Phan Lê Huy — 7 commit
+### Phan Lê Huy — 4 commit
 
 ```bash
 git checkout nhanh-huy
 git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
-git add app/src/main/res/font/ app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml
-git commit -m "feat(ui): thiet lap font Sora/Inter va bang mau nen den, nhan vang"
+git add app/src/main/res/font/ app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml app/src/main/res/drawable/bg_button_ghost.xml app/src/main/res/drawable/bg_button_primary.xml app/src/main/res/drawable/bg_button_solid.xml app/src/main/res/drawable/bg_card_surface.xml app/src/main/res/drawable/bg_filter_thumbnail.xml app/src/main/res/drawable/bg_sheet_top_rounded.xml app/src/main/res/drawable/bg_glass_backdrop.xml app/src/main/res/drawable/bg_home_hero_glow.xml app/src/main/res/drawable/bg_icon_chip_circle.xml app/src/main/res/drawable/bg_ring_outline.xml app/src/main/res/drawable/selector_filter_selected.xml app/src/main/res/drawable/dot_accent.xml app/src/main/res/color/filter_name_text_color.xml app/src/main/res/drawable/ic_ratio_original.xml app/src/main/res/drawable/ic_ratio_square.xml app/src/main/res/drawable/ic_ratio_four_three.xml app/src/main/res/drawable/ic_ratio_sixteen_nine.xml app/src/main/res/drawable/ic_rotate.xml app/src/main/res/drawable/ic_flip.xml
+git commit -m "feat(ui): thiet lap font/mau nen den nhan vang, cac drawable nen/chip/vong tron va icon rieng cho tung tuy chon Cat"
 
-git add app/src/main/res/drawable/bg_button_ghost.xml app/src/main/res/drawable/bg_button_primary.xml app/src/main/res/drawable/bg_button_solid.xml app/src/main/res/drawable/bg_card_surface.xml app/src/main/res/drawable/bg_filter_thumbnail.xml app/src/main/res/drawable/bg_sheet_top_rounded.xml app/src/main/res/drawable/bg_glass_backdrop.xml app/src/main/res/drawable/bg_home_hero_glow.xml app/src/main/res/drawable/bg_icon_chip_circle.xml app/src/main/res/drawable/bg_ring_outline.xml app/src/main/res/drawable/selector_filter_selected.xml app/src/main/res/drawable/dot_accent.xml app/src/main/res/color/filter_name_text_color.xml
-git commit -m "feat(ui): them cac drawable nen, gradient nut vang, chip icon va vong tron trang tri"
-
-git add app/src/main/res/drawable/ic_ratio_original.xml app/src/main/res/drawable/ic_ratio_square.xml app/src/main/res/drawable/ic_ratio_four_three.xml app/src/main/res/drawable/ic_ratio_sixteen_nine.xml app/src/main/res/drawable/ic_rotate.xml app/src/main/res/drawable/ic_flip.xml
-git commit -m "feat(ui): them icon rieng cho tung tuy chon Cat (thay the nut chu bang icon tron nhieu mau)"
-
-git add app/src/main/res/layout/activity_main.xml app/src/main/res/layout/item_filter_thumbnail.xml app/src/main/res/menu/menu_main.xml app/src/main/res/values/strings.xml
-git commit -m "feat(ui): them layout man hinh chinh dang accordion (Bo loc/Cat), item filter thumbnail va menu Luu/Lich su"
-
-git add app/src/main/java/com/example/photofilter/ui/FilterAdapter.java app/src/main/java/com/example/photofilter/ui/GradientTextHelper.java
-git commit -m "feat(ui): them FilterAdapter va hieu ung gradient cho wordmark"
+git add app/src/main/res/layout/activity_main.xml app/src/main/res/layout/item_filter_thumbnail.xml app/src/main/res/menu/menu_main.xml app/src/main/res/values/strings.xml app/src/main/java/com/example/photofilter/ui/FilterAdapter.java app/src/main/java/com/example/photofilter/ui/GradientTextHelper.java
+git commit -m "feat(ui): them layout man hinh chinh dang accordion (Bo loc/Cat), item filter thumbnail, menu Luu/Lich su, FilterAdapter va hieu ung gradient cho wordmark"
 
 git add app/src/main/res/layout/activity_home.xml app/src/main/java/com/example/photofilter/ui/HomeActivity.java
 git commit -m "feat(ui): them man Home chao mung (anh minh hoa + loi tat Chon anh/Chup anh/Lich su)"
@@ -208,50 +199,43 @@ git add app/src/main/java/com/example/photofilter/domain/filter/ColorAdjustFilte
 git commit -m "feat(domain): mo rong ColorAdjustFilter them Hue (xoay mau sac) va Exposure (phoi sang)"
 ```
 
-#### Trần Tú — 5 commit
+#### Trần Tú — 3 commit
 
 ```bash
 git checkout nhanh-trantu
 git config user.name "Tran Tu"
 git config user.email "<email_trantu>"
 
-git add app/src/main/java/com/example/photofilter/data/AiToolsRepository.java
-git commit -m "feat(data): them AiToolsRepository - Sharpen, Remove Noise (median filter), Upscale"
-
-git add gradle/libs.versions.toml app/build.gradle.kts app/src/main/java/com/example/photofilter/data/BackgroundRemovalRepository.java
-git commit -m "feat(data): tich hop ML Kit Selfie Segmentation cho tinh nang Xoa nen"
-
 git add app/src/main/java/com/example/photofilter/data/CropUtils.java app/src/main/java/com/example/photofilter/data/FilterRepository.java
 git commit -m "feat(data): them CropUtils.resize va dang ky filter Film/Mono/Retro"
 
 git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
-git commit -m "feat(presenter): mo rong contract cho Resize, Hue/Exposure va 4 cong cu AI moi (applyAiTool dung chung)"
+git commit -m "feat(presenter): mo rong contract cho Resize, Hue/Exposure"
 
 git add app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
-git commit -m "test(presenter): them test cho Resize, Sharpen, Remove Noise, Upscale"
+git commit -m "test(presenter): them test cho Resize"
 ```
 
-#### Phan Lê Huy — 5 commit
+#### Phan Lê Huy — 4 commit
+
+> **Chú thích:** từ vòng này, toàn bộ mảng **AI** (xử lý ảnh thuần Sharpen/Khử nhiễu/Tăng độ phân giải, tích hợp ML Kit Xoá nền, và sau này cả Gemini AI Enhance ở Ngày 6) được chuyển hết cho **Phan Lê Huy** phụ trách xuyên suốt — không còn tách cho Trần Tú nữa. `EditorContract.java`/`EditorPresenter.java` vì vậy được cả Trần Tú (Resize/Hue/Exposure, commit ở trên) và Phan Lê Huy (4 công cụ AI, commit thứ 2 dưới đây) cùng chỉnh nối tiếp nhau trong cùng buổi.
 
 ```bash
 git checkout nhanh-huy
 git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
-git add app/src/main/res/drawable/ic_tab_filters.xml app/src/main/res/drawable/ic_tab_adjust.xml app/src/main/res/drawable/ic_tab_ai.xml app/src/main/res/drawable/ic_tab_export.xml app/src/main/res/drawable/ic_resize.xml app/src/main/res/layout/item_tool_icon.xml
-git commit -m "feat(ui): them icon thanh dieu huong duoi va layout item_tool_icon dung chung"
+git add app/src/main/java/com/example/photofilter/data/AiToolsRepository.java gradle/libs.versions.toml app/build.gradle.kts app/src/main/java/com/example/photofilter/data/BackgroundRemovalRepository.java
+git commit -m "feat(data): them AiToolsRepository (Sharpen, Remove Noise, Upscale) va tich hop ML Kit Selfie Segmentation cho Xoa nen"
 
-git add app/src/main/res/drawable/ic_adjust_contrast.xml app/src/main/res/drawable/ic_adjust_saturation.xml app/src/main/res/drawable/ic_adjust_hue.xml app/src/main/res/drawable/ic_adjust_exposure.xml app/src/main/res/drawable/ic_ai_sharpen.xml app/src/main/res/drawable/ic_ai_denoise.xml app/src/main/res/drawable/ic_ai_upscale.xml app/src/main/res/drawable/ic_ai_bg_removal.xml app/src/main/res/drawable/ic_export_save.xml app/src/main/res/drawable/ic_export_share.xml
-git commit -m "feat(ui): them icon cho tung cong cu Adjust/AI/Export"
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
+git commit -m "feat(presenter): mo rong contract cho 4 cong cu AI moi (applyAiTool dung chung) va unit test"
 
-git add app/src/main/res/values/strings.xml app/src/main/res/menu/menu_main.xml
-git commit -m "feat(resource): them chuoi cho filter/cong cu moi, doi menu top bar chi con Chon anh + Lich su"
+git add app/src/main/res/drawable/ic_tab_filters.xml app/src/main/res/drawable/ic_tab_adjust.xml app/src/main/res/drawable/ic_tab_ai.xml app/src/main/res/drawable/ic_tab_export.xml app/src/main/res/drawable/ic_resize.xml app/src/main/res/layout/item_tool_icon.xml app/src/main/res/drawable/ic_adjust_contrast.xml app/src/main/res/drawable/ic_adjust_saturation.xml app/src/main/res/drawable/ic_adjust_hue.xml app/src/main/res/drawable/ic_adjust_exposure.xml app/src/main/res/drawable/ic_ai_sharpen.xml app/src/main/res/drawable/ic_ai_denoise.xml app/src/main/res/drawable/ic_ai_upscale.xml app/src/main/res/drawable/ic_ai_bg_removal.xml app/src/main/res/drawable/ic_export_save.xml app/src/main/res/drawable/ic_export_share.xml app/src/main/res/values/strings.xml app/src/main/res/menu/menu_main.xml
+git commit -m "feat(ui): them icon thanh dieu huong duoi, icon cho tung cong cu Adjust/AI/Export va chuoi lien quan"
 
-git add app/src/main/res/layout/activity_main.xml
-git commit -m "feat(ui): viet lai activity_main thanh CoordinatorLayout + BottomSheetBehavior, thanh dieu huong 5 icon, bo het nut chu"
-
-git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
-git commit -m "feat(ui): viet lai MainActivity dieu khien bottom sheet (mot tab mo tai 1 thoi diem, chuyen tab muot)"
+git add app/src/main/res/layout/activity_main.xml app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): viet lai activity_main + MainActivity thanh CoordinatorLayout + BottomSheetBehavior, thanh dieu huong 5 icon, bo het nut chu"
 ```
 
 > **Lưu ý khi build:** tính năng Xoá nền cần tải model ML Kit lần đầu chạy (cần Internet, có thể chậm trên máy yếu/emulator) — đã test Enhance/Sharpen/Khử nhiễu/Resize/Crop/Save/Share trực tiếp trên emulator, riêng Xoá nền chưa test được đầy đủ vì giới hạn thời gian tải model.
@@ -260,30 +244,21 @@ git commit -m "feat(ui): viet lai MainActivity dieu khien bottom sheet (mot tab 
 
 **Lý do:** thiết kế lại toàn bộ màn Home: hero card 40% màn hình (gradient trừu tượng xanh dương/cyan thay ảnh người thật — chưa có nguồn ảnh, xem ghi chú cuối), tiêu đề "HatFilter", 4 thẻ Gallery/Camera/AI Enhance/History, dải "Recent Photos" lấy dữ liệu thật từ lịch sử đã lưu, cùng hoạt ảnh Ken Burns, fade-in, hạt sáng trôi, glow nhấp nháy, ripple và shared element transition sang màn Editor. **Toàn bộ việc này nằm trong package `ui` (không đụng domain/data/presenter)** nên dồn hết vào Phan Lê Huy — không chia giả cho công bằng.
 
-#### Phan Lê Huy — 7 commit
+#### Phan Lê Huy — 4 commit
 
 ```bash
 git checkout nhanh-huy
 git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
-git add app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml
-git commit -m "feat(ui): them bang mau va ShapeAppearance rieng cho man Home, bat windowContentTransitions"
+git add app/src/main/res/values/colors.xml app/src/main/res/values/themes.xml app/src/main/res/drawable/bg_hero_gradient_base.xml app/src/main/res/drawable/bg_glow_blue.xml app/src/main/res/drawable/bg_glow_cyan.xml app/src/main/res/drawable/bg_hero_scrim.xml app/src/main/res/drawable/bg_card_ripple.xml app/src/main/res/drawable/bg_icon_glow_circle.xml
+git commit -m "feat(ui): them bang mau/ShapeAppearance rieng cho man Home va drawable gradient/glow cho hero + card"
 
-git add app/src/main/res/drawable/bg_hero_gradient_base.xml app/src/main/res/drawable/bg_glow_blue.xml app/src/main/res/drawable/bg_glow_cyan.xml app/src/main/res/drawable/bg_hero_scrim.xml app/src/main/res/drawable/bg_card_ripple.xml app/src/main/res/drawable/bg_icon_glow_circle.xml
-git commit -m "feat(ui): them drawable gradient/glow cho hero va ripple/glow cho card Home"
+git add app/src/main/java/com/example/photofilter/ui/ParticleView.java app/src/main/java/com/example/photofilter/ui/RecentPhotoAdapter.java app/src/main/res/layout/item_home_card.xml app/src/main/res/layout/item_recent_photo.xml app/src/main/res/values/strings.xml
+git commit -m "feat(ui): them ParticleView (hat sang troi), RecentPhotoAdapter, layout item dung chung va chuoi cho man Home cao cap"
 
-git add app/src/main/java/com/example/photofilter/ui/ParticleView.java app/src/main/java/com/example/photofilter/ui/RecentPhotoAdapter.java app/src/main/res/layout/item_home_card.xml app/src/main/res/layout/item_recent_photo.xml
-git commit -m "feat(ui): them ParticleView (hat sang troi), RecentPhotoAdapter va layout item dung chung"
-
-git add app/src/main/res/values/strings.xml
-git commit -m "feat(resource): them chuoi cho man Home cao cap (tieu de, 4 the, Recent Photos)"
-
-git add app/src/main/res/layout/activity_home.xml
-git commit -m "feat(ui): viet lai activity_home - hero 40 phan tram man hinh bo goc, 4 the 2x2, Recent Photos cuon ngang"
-
-git add app/src/main/java/com/example/photofilter/ui/HomeActivity.java
-git commit -m "feat(ui): viet lai HomeActivity - Ken Burns zoom, fade-in tuan tu, glow nhap nhay, tai Recent Photos tu SQLite"
+git add app/src/main/res/layout/activity_home.xml app/src/main/java/com/example/photofilter/ui/HomeActivity.java
+git commit -m "feat(ui): viet lai activity_home + HomeActivity - hero 40% man hinh bo goc, Ken Burns zoom, fade-in, glow, 4 the 2x2, Recent Photos tu SQLite"
 
 git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/res/layout/activity_main.xml
 git commit -m "feat(ui): them shared element transition tu the Home sang anh Editor, auto-mo tab AI khi bam the AI Enhance"
@@ -456,39 +431,23 @@ git push origin main
 
 ## Ngày 6 — Tăng cường bằng AI (Gemini) + Đổi thương hiệu HATFilter
 
-**Chủ đề:** tính năng điểm cộng (AI), hoàn thiện nhận diện thương hiệu, tài liệu và rà soát trước khi nộp.
+**Chủ đề:** tính năng điểm cộng (AI), hoàn thiện nhận diện thương hiệu, tài liệu và rà soát trước khi nộp. Trần Tú không có phần riêng ở Ngày 6 — mảng AI (kể cả Gemini) đã chuyển hết cho Phan Lê Huy phụ trách xuyên suốt, xem ghi chú ở "Bổ sung Ngày 3".
 
-### Trần Tú — 3 commit
-
-```bash
-git checkout nhanh-trantu
-git config user.name "Tran Tu"
-git config user.email "<email_trantu>"
-
-git add app/build.gradle.kts
-git commit -m "chore(gradle): doc Gemini API key tu local.properties, expose qua BuildConfig"
-
-git add app/src/main/java/com/example/photofilter/data/GeminiEnhanceRepository.java
-git commit -m "feat(data): them GeminiEnhanceRepository goi Gemini API tang cuong anh"
-
-git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/main/AndroidManifest.xml
-git commit -m "feat(presenter): them onAiEnhanceRequested, goi AI tren luong nen, khai bao quyen INTERNET"
-```
-
-> Trước khi build, mỗi người tự tạo `local.properties` (không commit) với dòng `gemini.api.key=<key thật>` — key KHÔNG được để trong bất kỳ file nào add vào git.
-
-### Phan Lê Huy — 3 commit
+### Phan Lê Huy — 4 commit
 
 ```bash
 git checkout nhanh-huy
 git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
-git add app/src/main/res/values/strings.xml
-git commit -m "feat(resource): doi ten app thanh HATFilter, them chuoi cho tinh nang AI"
+git add app/build.gradle.kts app/src/main/java/com/example/photofilter/data/GeminiEnhanceRepository.java
+git commit -m "feat(data): doc Gemini API key tu local.properties (BuildConfig) va them GeminiEnhanceRepository goi Gemini API"
 
-git add app/src/main/res/drawable/ic_launcher_background.xml app/src/main/res/drawable/ic_launcher_foreground.xml
-git commit -m "feat(ui): thiet ke lai icon ung dung theo logo thuong hieu moi"
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/main/AndroidManifest.xml
+git commit -m "feat(presenter): them onAiEnhanceRequested, goi AI tren luong nen, khai bao quyen INTERNET"
+
+git add app/src/main/res/values/strings.xml app/src/main/res/drawable/ic_launcher_background.xml app/src/main/res/drawable/ic_launcher_foreground.xml
+git commit -m "feat(resource): doi ten app thanh HATFilter, thiet ke lai icon ung dung theo logo thuong hieu moi"
 
 git add app/src/main/res/layout/activity_main.xml app/src/main/java/com/example/photofilter/ui/MainActivity.java
 git commit -m "feat(ui): them nut AI tang cuong tren man hinh chinh"
@@ -545,27 +504,100 @@ git add app/src/test/java/com/example/photofilter/data/CropUtilsTest.java
 git commit -m "test(data): them unit test cho CropUtils.customCrop"
 ```
 
-#### Phan Lê Huy — 5 commit
+#### Phan Lê Huy — 3 commit
 
 ```bash
 git checkout nhanh-huy
 git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
-git add app/src/main/java/com/example/photofilter/ui/CropOverlayView.java app/src/main/res/drawable/ic_crop_custom.xml
-git commit -m "feat(ui): them CropOverlayView - keo tha 4 goc chon vung cat tu do, luoi rule-of-thirds"
+git add app/src/main/java/com/example/photofilter/ui/CropOverlayView.java app/src/main/res/drawable/ic_crop_custom.xml app/src/main/res/values/strings.xml
+git commit -m "feat(ui): them CropOverlayView - keo tha 4 goc chon vung cat tu do, luoi rule-of-thirds, chuoi Tu do/Xac nhan/Huy"
 
-git add app/src/main/res/values/strings.xml
-git commit -m "feat(resource): them chuoi cho nut Tu do/Xac nhan/Huy trong panel Cat"
-
-git add app/src/main/res/layout/activity_main.xml
-git commit -m "feat(ui): them nut Tu do vao panel Cat, boc NestedScrollView cho toan bo bottom sheet de cuon khi nhieu tuy chon"
-
-git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
-git commit -m "feat(ui): noi CropOverlayView vao MainActivity - bat/tat che do cat tu do, xac nhan/huy"
+git add app/src/main/res/layout/activity_main.xml app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): them nut Tu do vao panel Cat, noi CropOverlayView vao MainActivity, boc NestedScrollView de cuon khi nhieu tuy chon"
 
 git add gradle.properties
 git commit -m "chore(gradle): tang network timeout cho mang cong ty/VPN khi sync lan dau"
+```
+
+### Merge (Tú Anh)
+
+```bash
+git checkout main
+git merge nhanh-trantu --no-ff
+git merge nhanh-huy --no-ff
+git push origin main
+```
+
+---
+
+## Bổ sung sau Ngày 6 (lần 2) — hoàn thiện toolbar Lưu/Chia sẻ, sửa lỗi hiển thị
+
+**Lý do:** sau khi dùng thử bản build thật, nhóm tiếp tục sửa nhiều lỗi/UX nhỏ phát sinh: sửa crash mở Camera trên Android cũ, sửa gradient góc không hợp lệ làm crash màn Home, gộp nút Lưu/Chia sẻ thành 1 icon trên toolbar (bỏ 2 nút Chọn ảnh/Lịch sử cũ), thêm màn "Đã lưu ảnh" hiển thị kết quả sau khi lưu, cho ảnh chỉnh sửa tràn viền toàn màn hình, và sửa khoảng cách/bo góc ở panel Bộ lọc, màn Home, dải Recent Photos. **Toàn bộ nằm trong package `ui` + resource, không đụng domain/data** nên dồn hết vào Phan Lê Huy, giống 2 đợt bổ sung UI trước.
+
+#### Phan Lê Huy — 4 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/src/main/res/drawable/bg_hero_gradient_base.xml app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "fix: sua android:angle khong hop le trong bg_hero_gradient_base.xml (crash man Home) va xin quyen WRITE_EXTERNAL_STORAGE truoc khi mo Camera tren Android < 10"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/res/layout/activity_main.xml app/src/main/res/menu/menu_main.xml app/src/main/java/com/example/photofilter/ui/SaveResultActivity.java app/src/main/res/layout/activity_save_result.xml app/src/main/AndroidManifest.xml app/src/main/res/values/strings.xml
+git commit -m "feat(ui): gop nut Luu/Chia se thanh 1 icon o toolbar, bo 2 nut Chon anh/Lich su, them man Da luu anh"
+
+git add app/src/main/res/layout/activity_main.xml app/src/main/res/layout/item_filter_thumbnail.xml app/src/main/res/values/themes.xml
+git commit -m "fix(ui): anh chinh sua tran vien toan man hinh, sua khoang cach/chieu cao panel Bo loc va bo goc anh xem truoc khop vien chon"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/res/layout/activity_home.xml app/src/main/res/layout/item_recent_photo.xml
+git commit -m "feat(ui): bo popup hoi Luu/Chia se (da co man Da luu anh), them khoang cach cho 4 the Home va Recent Photos"
+```
+
+### Merge (Tú Anh)
+
+```bash
+git checkout main
+git merge nhanh-huy --no-ff
+git push origin main
+```
+
+---
+
+## Bổ sung sau Ngày 6 (lần 3) — Đăng nhập/Đăng ký/Đăng xuất (Firebase Authentication) — CHƯA COMMIT ⏳
+
+**Lý do:** thêm yêu cầu xác thực người dùng — email/mật khẩu qua Firebase Authentication, `LoginActivity` thành màn khởi động mới (thay `HomeActivity`), `RegisterActivity` cho đăng ký, nút đăng xuất ở màn Home.
+
+> **Trước khi build:** mỗi người tự tạo project Firebase (hoặc dùng chung 1 project), tải `app/google-services.json` (đã gitignore, KHÔNG commit) — xem hướng dẫn chi tiết trong README, mục "Cấu hình Firebase Authentication".
+
+#### Trần Tú — 1 commit
+
+```bash
+git checkout nhanh-trantu
+git config user.name "Tran Tu"
+git config user.email "<email_trantu>"
+
+git add build.gradle.kts app/build.gradle.kts gradle/libs.versions.toml app/src/main/java/com/example/photofilter/data/AuthRepository.java
+git commit -m "feat(data): tich hop Firebase Authentication, them AuthRepository (dang nhap/dang ky/dang xuat email+mat khau)"
+```
+
+#### Phan Lê Huy — 3 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/src/main/java/com/example/photofilter/ui/LoginActivity.java app/src/main/res/layout/activity_login.xml app/src/main/java/com/example/photofilter/ui/RegisterActivity.java app/src/main/res/layout/activity_register.xml app/src/main/res/drawable/bg_input_field.xml app/src/main/AndroidManifest.xml
+git commit -m "feat(ui): them man Dang nhap/Dang ky, doi LoginActivity thanh man khoi dong (kiem tra phien Firebase truoc khi vao Home)"
+
+git add app/src/main/res/values/strings.xml
+git commit -m "feat(resource): them chuoi cho Dang nhap/Dang ky/Dang xuat"
+
+git add app/src/main/res/drawable/ic_logout.xml app/src/main/res/layout/activity_home.xml app/src/main/java/com/example/photofilter/ui/HomeActivity.java
+git commit -m "feat(ui): them nut dang xuat o man Home (dialog xac nhan, quay ve LoginActivity)"
 ```
 
 ### Merge (Tú Anh)
@@ -586,14 +618,14 @@ git remote add origin <URL server của lớp>
 git push -u origin main
 ```
 
-**Tổng kết theo người (6 ngày + bổ sung cắt tự do):**
+**Tổng kết theo người (6 ngày + 3 đợt bổ sung sau Ngày 6):**
 
 | Người | Số commit | Vai trò xuyên suốt |
 | --- | --- | --- |
 | Tú Anh (nhóm trưởng) | 23 (7+3+3+6+2+2) | Filter engine (interface/abstract class), README, rà soát & test cuối, người merge nhánh mỗi ngày |
-| Trần Tú | 28 (3+5+5+6+3+3+3) | Data/Presenter, CropUtils (kể cả cắt tự do), SQLite (History + Favorite), tích hợp AI (Gemini + ML Kit) |
-| Phan Lê Huy | 34 (+3 Ngày 1) = 37 (1+7+5+7+4+2+3+5) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter, CropOverlayView (cắt tự do) |
+| Trần Tú | 24 (3+5+3+6+3+3+1) | Data/Presenter, CropUtils (kể cả cắt tự do), SQLite (History + Favorite), Firebase Authentication (AuthRepository) |
+| Phan Lê Huy | 33 (+3 Ngày 1) = 36 (1+4+4+4+4+2+4+3+4+3) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter, CropOverlayView (cắt tự do), **toàn bộ mảng AI** (Sharpen/Khử nhiễu/Tăng độ phân giải, ML Kit Xoá nền, Gemini AI Enhance), sửa lỗi + hoàn thiện UI sau khi test bản build thật, màn Đăng nhập/Đăng ký/Đăng xuất |
 
-Ngày 3 phình to nhất vì 2 đợt redesign liên tiếp trong cùng ngày (bottom sheet + màn Home) đều là việc UI thuần, không đụng domain/data/presenter nên không có gì hợp lý để chia cho Tú Anh/Trần Tú; đợt bổ sung cắt tự do sau Ngày 6 cũng nghiêng về Phan Lê Huy vì phần lớn là `CropOverlayView` (UI) trong khi Trần Tú giữ phần `CropUtils`/presenter/test. Nếu muốn cân lại cho đều: có thể chuyển 2-3 commit thuần tài nguyên (ví dụ commit `colors.xml`/`themes.xml` hoặc commit `strings.xml`) sang cho Trần Tú hoặc Tú Anh đứng tên, vì đây chỉ là khai báo dữ liệu, không đòi hỏi hiểu sâu về UI. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
+**Cập nhật:** mảng AI trước đây chia cho Trần Tú, nay chuyển hết sang Phan Lê Huy phụ trách xuyên suốt (bao gồm cả Gemini ở Ngày 6) theo yêu cầu điều chỉnh phân công; đồng thời thêm tính năng Đăng nhập/Đăng ký/Đăng xuất qua Firebase Authentication (`AuthRepository` cho Trần Tú giữ vai trò Data, `LoginActivity`/`RegisterActivity`/nút đăng xuất cho Phan Lê Huy giữ vai trò UI — đúng quy ước chia theo tầng đã dùng xuyên suốt). Số commit của Phan Lê Huy vẫn cao nhất (36 so với 23/24) vì gánh cả UI lẫn AI xuyên suốt — đã gộp bớt các commit nhỏ liên quan nhau trong từng đợt (gộp icon/drawable cùng loại, gộp layout+activity đi cùng nhau) để không vênh quá xa so với 2 bạn còn lại, dù thực tế khối lượng file UI vẫn nhiều hơn. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
 
 **File này chỉ để tham khảo khi commit**, có thể xoá khỏi repo trước khi nộp bài nếu muốn cây thư mục gọn hơn.
