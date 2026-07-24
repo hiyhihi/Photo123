@@ -49,6 +49,11 @@
         <item name="cornerSize">28dp</item>
     </style>
 
+    <style name="ShapeAppearance.HAT.FilterThumbnail" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">13dp</item>
+    </style>
+
     <style name="ShapeAppearance.Home.RoundedHero" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">28dp</item>
