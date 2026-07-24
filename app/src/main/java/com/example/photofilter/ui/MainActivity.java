@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -14,12 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -83,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private SeekBar hueSeekBar;
     private SeekBar exposureSeekBar;
     private View saveTopBarButton;
-    private boolean shareUnlocked;
 
     private CropOverlayView cropOverlayView;
     private View cropCustomActionsRow;
@@ -344,36 +339,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private void setUpSaveButton() {
         saveTopBarButton = findViewById(R.id.saveTopBarButton);
         saveTopBarButton.setEnabled(false);
-        saveTopBarButton.setOnClickListener(this::showSaveSharePopup);
-    }
-
-    /** Small popup anchored under the toolbar's Save icon offering Save / Share (Share stays locked until a save succeeds). */
-    private void showSaveSharePopup(View anchor) {
-        View popupView = getLayoutInflater().inflate(R.layout.popup_save_share, null);
-        View popupSaveRow = popupView.findViewById(R.id.popupSaveRow);
-        View popupShareRow = popupView.findViewById(R.id.popupShareRow);
-        popupShareRow.setEnabled(shareUnlocked);
-        popupShareRow.setAlpha(shareUnlocked ? 1f : 0.4f);
-
-        PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0));
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setElevation(12f);
-
-        popupSaveRow.setOnClickListener(v -> {
-            popupWindow.dismiss();
-            withStoragePermission(() -> presenter.onSaveClicked());
-        });
-        popupShareRow.setOnClickListener(v -> {
-            if (!shareUnlocked) {
-                return;
-            }
-            popupWindow.dismiss();
-            withStoragePermission(() -> presenter.onShareClicked());
-        });
-
-        int gapPx = (int) (8 * getResources().getDisplayMetrics().density);
-        popupWindow.showAsDropDown(anchor, 0, gapPx, Gravity.END);
+        saveTopBarButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onSaveClicked()));
     }
 
     private void setUpToolIcon(int includeRootId, int iconRes, int labelRes, Runnable action) {
@@ -499,7 +465,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         emptyStateText.setVisibility(View.GONE);
         mainImageView.setImageBitmap(bitmap);
         saveTopBarButton.setEnabled(true);
-        shareUnlocked = false;
         for (View navButton : navButtons) {
             navButton.setEnabled(true);
         }
@@ -512,7 +477,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     @Override
     public void showFilteredImage(Bitmap bitmap) {
         mainImageView.setImageBitmap(bitmap);
-        shareUnlocked = false;
     }
 
     @Override
@@ -538,7 +502,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     @Override
     public void showSaveResult(boolean success, Uri savedUri) {
         if (success) {
-            shareUnlocked = true;
             Intent intent = new Intent(this, SaveResultActivity.class);
             intent.putExtra(SaveResultActivity.EXTRA_SAVED_URI, savedUri);
             startActivity(intent);
