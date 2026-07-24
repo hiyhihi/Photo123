@@ -566,21 +566,25 @@ git push origin main
 
 ---
 
-## Bổ sung sau Ngày 6 (lần 3) — Đăng nhập/Đăng ký/Đăng xuất (Firebase Authentication) — CHƯA COMMIT ⏳
+## Bổ sung sau Ngày 6 (lần 3) — Đăng nhập/Đăng ký/Đăng xuất (SQLite cục bộ) — CHƯA COMMIT ⏳
 
-**Lý do:** thêm yêu cầu xác thực người dùng — email/mật khẩu qua Firebase Authentication, `LoginActivity` thành màn khởi động mới (thay `HomeActivity`), `RegisterActivity` cho đăng ký, nút đăng xuất ở màn Home.
+**Lý do:** thêm yêu cầu xác thực người dùng. Ban đầu định dùng Firebase Authentication nhưng đổi sang **SQLite thuần cục bộ** (giống History/Favorite) để khỏi cần server/API key/setup Firebase Console — mật khẩu băm SHA-256, phiên đăng nhập lưu qua `SharedPreferences`. `LoginActivity` thành màn khởi động mới (thay `HomeActivity`), `RegisterActivity` cho đăng ký, nút đăng xuất ở màn Home.
 
-> **Trước khi build:** mỗi người tự tạo project Firebase (hoặc dùng chung 1 project), tải `app/google-services.json` (đã gitignore, KHÔNG commit) — xem hướng dẫn chi tiết trong README, mục "Cấu hình Firebase Authentication".
-
-#### Trần Tú — 1 commit
+#### Trần Tú — 2 commit
 
 ```bash
 git checkout nhanh-trantu
 git config user.name "Tran Tu"
 git config user.email "<email_trantu>"
 
-git add build.gradle.kts app/build.gradle.kts gradle/libs.versions.toml app/src/main/java/com/example/photofilter/data/AuthRepository.java
-git commit -m "feat(data): tich hop Firebase Authentication, them AuthRepository (dang nhap/dang ky/dang xuat email+mat khau)"
+git add app/src/main/java/com/example/photofilter/data/UserDbHelper.java app/src/main/java/com/example/photofilter/data/UserRepository.java app/src/main/java/com/example/photofilter/data/AuthRepository.java
+git commit -m "feat(data): them UserDbHelper/UserRepository (SQLite thuan) va AuthRepository dieu phoi dang nhap/dang ky/dang xuat"
+
+git add app/src/test/java/com/example/photofilter/data/UserRepositoryTest.java app/src/test/java/com/example/photofilter/data/AuthRepositoryTest.java
+git commit -m "test(data): them unit test cho UserRepository va AuthRepository"
+
+git add app/src/main/java/com/example/photofilter/data/BackgroundRemovalRepository.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java
+git commit -m "fix: scale mask ML Kit ve dung kich thuoc anh goc truoc khi ap dung (Xoa nen chi xu ly dung 1 goc anh), hien loi that tu AI thay vi thong bao chung chung"
 ```
 
 #### Phan Lê Huy — 3 commit
@@ -591,7 +595,7 @@ git config user.name "Phan Le Huy"
 git config user.email "<email_huy>"
 
 git add app/src/main/java/com/example/photofilter/ui/LoginActivity.java app/src/main/res/layout/activity_login.xml app/src/main/java/com/example/photofilter/ui/RegisterActivity.java app/src/main/res/layout/activity_register.xml app/src/main/res/drawable/bg_input_field.xml app/src/main/AndroidManifest.xml
-git commit -m "feat(ui): them man Dang nhap/Dang ky, doi LoginActivity thanh man khoi dong (kiem tra phien Firebase truoc khi vao Home)"
+git commit -m "feat(ui): them man Dang nhap/Dang ky, doi LoginActivity thanh man khoi dong (kiem tra phien dang nhap truoc khi vao Home)"
 
 git add app/src/main/res/values/strings.xml
 git commit -m "feat(resource): them chuoi cho Dang nhap/Dang ky/Dang xuat"
@@ -623,9 +627,9 @@ git push -u origin main
 | Người | Số commit | Vai trò xuyên suốt |
 | --- | --- | --- |
 | Tú Anh (nhóm trưởng) | 23 (7+3+3+6+2+2) | Filter engine (interface/abstract class), README, rà soát & test cuối, người merge nhánh mỗi ngày |
-| Trần Tú | 24 (3+5+3+6+3+3+1) | Data/Presenter, CropUtils (kể cả cắt tự do), SQLite (History + Favorite), Firebase Authentication (AuthRepository) |
+| Trần Tú | 26 (3+5+3+6+3+3+3) | Data/Presenter, CropUtils (kể cả cắt tự do), SQLite (History + Favorite + tài khoản), `AuthRepository`, sửa lỗi Xoá nền/AI Enhance |
 | Phan Lê Huy | 33 (+3 Ngày 1) = 36 (1+4+4+4+4+2+4+3+4+3) | Gradle scaffold, UI/theme, bottom sheet 5 icon, màn Home cao cấp (hero/particle/shared transition), Lịch sử, thương hiệu HATFilter, CropOverlayView (cắt tự do), **toàn bộ mảng AI** (Sharpen/Khử nhiễu/Tăng độ phân giải, ML Kit Xoá nền, Gemini AI Enhance), sửa lỗi + hoàn thiện UI sau khi test bản build thật, màn Đăng nhập/Đăng ký/Đăng xuất |
 
-**Cập nhật:** mảng AI trước đây chia cho Trần Tú, nay chuyển hết sang Phan Lê Huy phụ trách xuyên suốt (bao gồm cả Gemini ở Ngày 6) theo yêu cầu điều chỉnh phân công; đồng thời thêm tính năng Đăng nhập/Đăng ký/Đăng xuất qua Firebase Authentication (`AuthRepository` cho Trần Tú giữ vai trò Data, `LoginActivity`/`RegisterActivity`/nút đăng xuất cho Phan Lê Huy giữ vai trò UI — đúng quy ước chia theo tầng đã dùng xuyên suốt). Số commit của Phan Lê Huy vẫn cao nhất (36 so với 23/24) vì gánh cả UI lẫn AI xuyên suốt — đã gộp bớt các commit nhỏ liên quan nhau trong từng đợt (gộp icon/drawable cùng loại, gộp layout+activity đi cùng nhau) để không vênh quá xa so với 2 bạn còn lại, dù thực tế khối lượng file UI vẫn nhiều hơn. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
+**Cập nhật:** mảng AI trước đây chia cho Trần Tú, nay chuyển hết sang Phan Lê Huy phụ trách xuyên suốt (bao gồm cả Gemini ở Ngày 6) theo yêu cầu điều chỉnh phân công; đồng thời thêm tính năng Đăng nhập/Đăng ký/Đăng xuất — ban đầu định dùng Firebase Authentication nhưng đổi sang SQLite cục bộ (`AuthRepository`/`UserRepository` cho Trần Tú giữ vai trò Data, `LoginActivity`/`RegisterActivity`/nút đăng xuất cho Phan Lê Huy giữ vai trò UI — đúng quy ước chia theo tầng đã dùng xuyên suốt). Số commit của Phan Lê Huy vẫn cao nhất (36 so với 23/26) vì gánh cả UI lẫn AI xuyên suốt — đã gộp bớt các commit nhỏ liên quan nhau trong từng đợt (gộp icon/drawable cùng loại, gộp layout+activity đi cùng nhau) để không vênh quá xa so với 2 bạn còn lại, dù thực tế khối lượng file UI vẫn nhiều hơn. Ngày 1–2 đã push thật nên giữ nguyên không đổi.
 
 **File này chỉ để tham khảo khi commit**, có thể xoá khỏi repo trước khi nộp bài nếu muốn cây thư mục gọn hơn.

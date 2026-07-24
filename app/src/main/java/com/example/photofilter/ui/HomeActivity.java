@@ -39,7 +39,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final AuthRepository authRepository = new AuthRepository();
+    private AuthRepository authRepository;
     private HistoryRepository historyRepository;
 
     private View heroBackgroundView;
@@ -61,6 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         historyRepository = new HistoryRepository(getApplicationContext());
+        authRepository = new AuthRepository(getApplicationContext());
         heroBackgroundView = findViewById(R.id.heroBackgroundView);
         particleView = findViewById(R.id.particleView);
 

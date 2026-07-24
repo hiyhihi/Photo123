@@ -2,6 +2,8 @@ package com.example.photofilter.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -15,12 +17,17 @@ import com.example.photofilter.R;
 import com.example.photofilter.data.AuthRepository;
 import com.google.android.material.appbar.MaterialToolbar;
 
-/** Email/password sign-up. Firebase logs the new user in automatically on success. */
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/** Email/password sign-up against the local SQLite account table; logs the new user in on success. */
 public class RegisterActivity extends AppCompatActivity {
 
     private static final int MIN_PASSWORD_LENGTH = 6;
 
-    private final AuthRepository authRepository = new AuthRepository();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private AuthRepository authRepository;
 
     private EditText emailInput;
     private EditText passwordInput;
@@ -34,6 +41,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        authRepository = new AuthRepository(getApplicationContext());
+
         MaterialToolbar toolbar = findViewById(R.id.registerToolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
 
@@ -46,6 +55,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         registerButton.setOnClickListener(v -> attemptRegister());
         findViewById(R.id.goToLoginText).setOnClickListener(v -> finish());
+    }
+
+    @Override
+    protected void onDestroy() {
+        executor.shutdown();
+        super.onDestroy();
     }
 
     private void attemptRegister() {
@@ -67,20 +82,22 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         setLoading(true);
-        authRepository.signUp(email, password, new AuthRepository.AuthCallback() {
-            @Override
-            public void onSuccess() {
-                Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            }
-
-            @Override
-            public void onError(String message) {
-                setLoading(false);
-                showError(message);
-            }
+        executor.execute(() -> {
+            String error = authRepository.signUp(email, password);
+            mainHandler.post(() -> {
+                if (isFinishing()) {
+                    return;
+                }
+                if (error == null) {
+                    Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    setLoading(false);
+                    showError(error);
+                }
+            });
         });
     }
 

@@ -21,9 +21,9 @@ Màu gốc, Trắng đen, Âm bản *(3 bộ lọc bắt buộc theo đề bài)
 
 ### Tài khoản
 
-- Đăng nhập / Đăng ký bằng email + mật khẩu qua **Firebase Authentication**
+- Đăng nhập / Đăng ký bằng email + mật khẩu — lưu cục bộ bằng **SQLite thuần** (bảng `users`, mật khẩu băm SHA-256, không lưu plain text)
 - Đăng xuất từ màn Home (icon góc phải trên hero card)
-- Phiên đăng nhập được Firebase tự lưu — mở lại app không cần đăng nhập lại
+- Phiên đăng nhập lưu qua `SharedPreferences` — mở lại app không cần đăng nhập lại. Không cần server/Internet, không cần cấu hình gì thêm để build
 
 ### Khác
 
@@ -38,12 +38,12 @@ Mô hình **MVP** (Model – View – Presenter), tách biệt rõ giao diện k
 
 ```text
 domain/filter/   Interface Filter + abstract BaseFilter (Template Method) + các bộ lọc cụ thể
-data/            Repository: đọc/ghi ảnh, SQLite (lịch sử, yêu thích), gọi AI (Gemini, ML Kit), AuthRepository (Firebase)
+data/            Repository: đọc/ghi ảnh, SQLite (lịch sử, yêu thích, tài khoản), gọi AI (Gemini, ML Kit)
 presenter/       EditorContract (hợp đồng MVP) + EditorPresenter (điều phối nghiệp vụ, luồng nền)
 ui/              Activity/Adapter — chỉ hiển thị, không chứa logic xử lý ảnh
 ```
 
-`LoginActivity`/`RegisterActivity` không dùng Contract/Presenter riêng (theo đúng quy ước "màn đơn giản, không có nghiệp vụ phức tạp thì gọi Repository trực tiếp" — giống `HistoryActivity`) — validate input ở View, gọi Firebase qua `AuthRepository`.
+`LoginActivity`/`RegisterActivity` không dùng Contract/Presenter riêng (theo đúng quy ước "màn đơn giản, không có nghiệp vụ phức tạp thì gọi Repository trực tiếp" — giống `HistoryActivity`) — validate input ở View, tự quản lý executor nền, gọi `AuthRepository` (đồng bộ, chặn luồng — giống `HistoryRepository`).
 
 Bộ nhớ được quản lý chủ động: mọi `Bitmap` trung gian đều được `recycle()` ngay khi không còn dùng (đổi ảnh, đổi bộ lọc, thoát màn hình).
 
@@ -67,17 +67,7 @@ Bộ nhớ được quản lý chủ động: mọi `Bitmap` trung gian đều �
 ./gradlew testDebugUnitTest    # chạy unit test
 ```
 
-### Cấu hình Firebase Authentication (bắt buộc để build)
-
-App cần file `app/google-services.json` (đã gitignore, mỗi máy tự thêm — **không commit file này**), nếu không `./gradlew assembleDebug` sẽ báo lỗi thiếu file ngay ở bước `processDebugGoogleServices`. Cách lấy:
-
-1. Vào [Firebase Console](https://console.firebase.google.com) → tạo project mới (hoặc dùng chung 1 project cho cả nhóm).
-2. Thêm app Android với package name `com.example.photofilter`.
-3. Tải file `google-services.json`, đặt vào thư mục `app/` (ngang hàng `app/build.gradle.kts`).
-4. Trong Firebase Console → **Authentication → Sign-in method** → bật **Email/Password**.
-5. Build lại — `com.google.gms.google-services` plugin sẽ tự đọc file này.
-
-> Khi review code mà chưa có file thật, có thể tạo tạm 1 file `google-services.json` với dữ liệu giả (đúng cấu trúc JSON, `package_name` khớp `com.example.photofilter`) chỉ để build/compile qua — đăng nhập/đăng ký sẽ báo lỗi "API key not valid" (đúng như dự kiến) cho tới khi thay bằng file thật.
+Đăng nhập/Đăng ký không cần cấu hình gì thêm — chạy được ngay sau khi build, không cần server hay API key riêng (dữ liệu tài khoản lưu cục bộ trong SQLite trên máy).
 
 ## Phân công thành viên
 
@@ -93,7 +83,7 @@ Chia theo tầng kiến trúc — mỗi người sở hữu trọn vẹn một t
 
 ### Trần Tú — Data & Presenter layer (Nghiệp vụ)
 
-- **Data:** `ImageRepository` (đọc/ghi MediaStore, downsample, sửa hướng ảnh theo EXIF, tạo URI cho camera), `FilterRepository`, `CropUtils`/`CropRatio` (cắt/xoay/lật/đổi cỡ), 2 database SQLite thuần: `HistoryDbHelper`/`HistoryRepository` (lịch sử) và `FavoriteDbHelper`/`FavoriteRepository` (yêu thích), `AuthRepository` (bọc Firebase Authentication — đăng nhập/đăng ký/đăng xuất email+mật khẩu)
+- **Data:** `ImageRepository` (đọc/ghi MediaStore, downsample, sửa hướng ảnh theo EXIF, tạo URI cho camera), `FilterRepository`, `CropUtils`/`CropRatio` (cắt/xoay/lật/đổi cỡ), 3 database SQLite thuần: `HistoryDbHelper`/`HistoryRepository` (lịch sử), `FavoriteDbHelper`/`FavoriteRepository` (yêu thích) và `UserDbHelper`/`UserRepository` (tài khoản — bảng `users`, mật khẩu băm SHA-256); `AuthRepository` điều phối đăng nhập/đăng ký/đăng xuất + phiên đăng nhập (`SharedPreferences`) trên nền `UserRepository`
 - **Presenter:** `EditorContract` + `EditorPresenter` — toàn bộ điều phối nghiệp vụ: xử lý bất đồng bộ trên luồng nền, quản lý vòng đời Bitmap (originalBitmap/currentFilteredBitmap), chống race-condition (requestId), tích hợp mọi tính năng AI qua một luồng dùng chung (`applyAiTool`)
 - Viết unit test cho tầng Data (History, Favorite) và Presenter (EditorPresenterTest — filter, crop, adjust, AI)
 

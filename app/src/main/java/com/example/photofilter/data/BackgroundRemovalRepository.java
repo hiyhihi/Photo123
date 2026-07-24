@@ -39,19 +39,40 @@ public class BackgroundRemovalRepository {
         }
     }
 
+    /**
+     * The mask's resolution does not always match the source bitmap's (ML Kit
+     * can return it at the model's own internal size), so it must be scaled
+     * up to the source's dimensions before being applied pixel-for-pixel —
+     * applying it directly at mask resolution only ever touched a corner of
+     * the real photo.
+     */
     private static Bitmap applyMask(Bitmap source, SegmentationMask mask) {
-        int width = mask.getWidth();
-        int height = mask.getHeight();
+        int maskWidth = mask.getWidth();
+        int maskHeight = mask.getHeight();
         ByteBuffer buffer = mask.getBuffer();
         buffer.rewind();
 
+        int[] maskPixels = new int[maskWidth * maskHeight];
+        for (int i = 0; i < maskPixels.length; i++) {
+            float confidence = buffer.getFloat();
+            maskPixels[i] = confidence >= FOREGROUND_CONFIDENCE_THRESHOLD ? 0xFF000000 : 0x00000000;
+        }
+        Bitmap maskBitmap = Bitmap.createBitmap(maskPixels, maskWidth, maskHeight, Bitmap.Config.ARGB_8888);
+
+        int width = source.getWidth();
+        int height = source.getHeight();
+        Bitmap scaledMask = (maskWidth == width && maskHeight == height)
+                ? maskBitmap
+                : Bitmap.createScaledBitmap(maskBitmap, width, height, true);
+
         Bitmap result = source.copy(Bitmap.Config.ARGB_8888, true);
         int[] pixels = new int[width * height];
+        int[] maskAlpha = new int[width * height];
         result.getPixels(pixels, 0, width, 0, 0, width, height);
+        scaledMask.getPixels(maskAlpha, 0, width, 0, 0, width, height);
 
         for (int i = 0; i < pixels.length; i++) {
-            float confidence = buffer.getFloat();
-            if (confidence < FOREGROUND_CONFIDENCE_THRESHOLD) {
+            if (maskAlpha[i] >>> 24 == 0) {
                 pixels[i] = pixels[i] & 0x00FFFFFF;
             }
         }

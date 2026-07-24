@@ -370,7 +370,8 @@ public class EditorPresenter implements EditorContract.Presenter {
                         return;
                     }
                     view.showLoading(false);
-                    view.showError(errorMessage);
+                    String detail = e.getMessage();
+                    view.showError(detail != null && !detail.isEmpty() ? errorMessage + ": " + detail : errorMessage);
                 });
             }
         });

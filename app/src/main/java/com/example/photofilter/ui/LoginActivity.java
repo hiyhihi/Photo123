@@ -2,6 +2,8 @@ package com.example.photofilter.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -14,13 +16,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.photofilter.R;
 import com.example.photofilter.data.AuthRepository;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
- * App entry point. Skips straight to {@link HomeActivity} if a Firebase
- * session already exists; otherwise collects email/password and signs in.
+ * App entry point. Skips straight to {@link HomeActivity} if a local session
+ * already exists; otherwise collects email/password and signs in against the
+ * SQLite-backed account table.
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private final AuthRepository authRepository = new AuthRepository();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private AuthRepository authRepository;
 
     private EditText emailInput;
     private EditText passwordInput;
@@ -31,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        authRepository = new AuthRepository(getApplicationContext());
 
         if (authRepository.isLoggedIn()) {
             goToHome();
@@ -50,6 +59,12 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, RegisterActivity.class)));
     }
 
+    @Override
+    protected void onDestroy() {
+        executor.shutdown();
+        super.onDestroy();
+    }
+
     private void attemptLogin() {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString();
@@ -60,17 +75,19 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setLoading(true);
-        authRepository.signIn(email, password, new AuthRepository.AuthCallback() {
-            @Override
-            public void onSuccess() {
-                goToHome();
-            }
-
-            @Override
-            public void onError(String message) {
-                setLoading(false);
-                showError(message);
-            }
+        executor.execute(() -> {
+            String error = authRepository.signIn(email, password);
+            mainHandler.post(() -> {
+                if (isFinishing()) {
+                    return;
+                }
+                if (error == null) {
+                    goToHome();
+                } else {
+                    setLoading(false);
+                    showError(error);
+                }
+            });
         });
     }
 
