@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -13,11 +14,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private static final int TAB_CROP = 1;
     private static final int TAB_ADJUST = 2;
     private static final int TAB_AI = 3;
-    private static final int TAB_EXPORT = 4;
 
     private ImageView mainImageView;
     private TextView emptyStateText;
@@ -81,8 +82,8 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private SeekBar saturationSeekBar;
     private SeekBar hueSeekBar;
     private SeekBar exposureSeekBar;
-    private View saveButton;
-    private View shareButton;
+    private View saveTopBarButton;
+    private boolean shareUnlocked;
 
     private CropOverlayView cropOverlayView;
     private View cropCustomActionsRow;
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpCropPanel();
         setUpAdjustPanel();
         setUpAiPanel();
-        setUpExportPanel();
+        setUpSaveButton();
 
         presenter = new EditorPresenter(this);
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onImagePicked);
@@ -165,29 +166,25 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                 findViewById(R.id.filterRecyclerView),
                 findViewById(R.id.cropSheetPanel),
                 findViewById(R.id.adjustSheetPanel),
-                findViewById(R.id.aiSheetPanel),
-                findViewById(R.id.exportSheetPanel)
+                findViewById(R.id.aiSheetPanel)
         };
         navButtons = new View[]{
                 findViewById(R.id.navFiltersButton),
                 findViewById(R.id.navCropButton),
                 findViewById(R.id.navAdjustButton),
-                findViewById(R.id.navAiButton),
-                findViewById(R.id.navExportButton)
+                findViewById(R.id.navAiButton)
         };
         navIcons = new ImageView[]{
                 findViewById(R.id.navFiltersIcon),
                 findViewById(R.id.navCropIcon),
                 findViewById(R.id.navAdjustIcon),
-                findViewById(R.id.navAiIcon),
-                findViewById(R.id.navExportIcon)
+                findViewById(R.id.navAiIcon)
         };
         navLabels = new TextView[]{
                 findViewById(R.id.navFiltersLabel),
                 findViewById(R.id.navCropLabel),
                 findViewById(R.id.navAdjustLabel),
-                findViewById(R.id.navAiLabel),
-                findViewById(R.id.navExportLabel)
+                findViewById(R.id.navAiLabel)
         };
         for (int i = 0; i < navButtons.length; i++) {
             int tab = i;
@@ -344,11 +341,39 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpToolIcon(R.id.aiBgRemovalButton, R.drawable.ic_ai_bg_removal, R.string.ai_tool_background_removal, () -> presenter.onBackgroundRemovalRequested());
     }
 
-    private void setUpExportPanel() {
-        saveButton = findViewById(R.id.saveButton);
-        shareButton = findViewById(R.id.shareButton);
-        saveButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onSaveClicked()));
-        shareButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onShareClicked()));
+    private void setUpSaveButton() {
+        saveTopBarButton = findViewById(R.id.saveTopBarButton);
+        saveTopBarButton.setEnabled(false);
+        saveTopBarButton.setOnClickListener(this::showSaveSharePopup);
+    }
+
+    /** Small popup anchored under the toolbar's Save icon offering Save / Share (Share stays locked until a save succeeds). */
+    private void showSaveSharePopup(View anchor) {
+        View popupView = getLayoutInflater().inflate(R.layout.popup_save_share, null);
+        View popupSaveRow = popupView.findViewById(R.id.popupSaveRow);
+        View popupShareRow = popupView.findViewById(R.id.popupShareRow);
+        popupShareRow.setEnabled(shareUnlocked);
+        popupShareRow.setAlpha(shareUnlocked ? 1f : 0.4f);
+
+        PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(0));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setElevation(12f);
+
+        popupSaveRow.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            withStoragePermission(() -> presenter.onSaveClicked());
+        });
+        popupShareRow.setOnClickListener(v -> {
+            if (!shareUnlocked) {
+                return;
+            }
+            popupWindow.dismiss();
+            withStoragePermission(() -> presenter.onShareClicked());
+        });
+
+        int gapPx = (int) (8 * getResources().getDisplayMetrics().density);
+        popupWindow.showAsDropDown(anchor, 0, gapPx, Gravity.END);
     }
 
     private void setUpToolIcon(int includeRootId, int iconRes, int labelRes, Runnable action) {
@@ -366,26 +391,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         presenter.detachView();
         mainHandler.removeCallbacks(adjustRunnable);
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_pick_image) {
-            showPickSourceDialog();
-            return true;
-        }
-        if (id == R.id.action_history) {
-            startActivity(new Intent(this, HistoryActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void runAutoActionIfRequested() {
@@ -493,8 +498,8 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     public void showOriginalImage(Bitmap bitmap) {
         emptyStateText.setVisibility(View.GONE);
         mainImageView.setImageBitmap(bitmap);
-        saveButton.setEnabled(true);
-        shareButton.setEnabled(false);
+        saveTopBarButton.setEnabled(true);
+        shareUnlocked = false;
         for (View navButton : navButtons) {
             navButton.setEnabled(true);
         }
@@ -507,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     @Override
     public void showFilteredImage(Bitmap bitmap) {
         mainImageView.setImageBitmap(bitmap);
-        shareButton.setEnabled(false);
+        shareUnlocked = false;
     }
 
     @Override
@@ -533,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     @Override
     public void showSaveResult(boolean success, Uri savedUri) {
         if (success) {
-            shareButton.setEnabled(true);
+            shareUnlocked = true;
             Toast.makeText(this, R.string.save_success, Toast.LENGTH_SHORT).show();
         }
     }
