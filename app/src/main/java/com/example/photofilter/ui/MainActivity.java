@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private SeekBar hueSeekBar;
     private SeekBar exposureSeekBar;
     private View saveTopBarButton;
+    private View undoTopBarButton;
+    private View redoTopBarButton;
 
     private CropOverlayView cropOverlayView;
     private View cropCustomActionsRow;
@@ -126,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpAdjustPanel();
         setUpAiPanel();
         setUpSaveButton();
+        setUpUndoRedoButtons();
+        setUpToolActionsRow();
 
         presenter = new EditorPresenter(this);
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onImagePicked);
@@ -187,20 +191,25 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         }
     }
 
-    /** Tapping the open tab collapses it; tapping a different tab collapses the old one, then expands the new one once hidden. */
+    /** Tapping the open tab collapses it (cancelling its draft); tapping a different tab cancels the old draft, then opens a fresh one once hidden. */
     private void onTabTapped(int tab) {
         boolean sheetOpen = sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED
                 || sheetBehavior.getState() == BottomSheetBehavior.STATE_SETTLING;
         if (activeTab == tab && sheetOpen) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            setNavSelected(-1);
-            activeTab = -1;
             if (customCropActive) {
                 cancelCustomCrop();
             }
+            presenter.onCancelRequested();
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            setNavSelected(-1);
+            activeTab = -1;
             return;
         }
         if (sheetOpen) {
+            if (customCropActive) {
+                cancelCustomCrop();
+            }
+            presenter.onCancelRequested();
             pendingTab = tab;
             sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         } else {
@@ -219,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         panels[tab].setVisibility(View.VISIBLE);
         setNavSelected(tab);
         activeTab = tab;
+        presenter.onToolTabOpened();
     }
 
     private void setNavSelected(int tab) {
@@ -341,6 +351,40 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         saveTopBarButton.setOnClickListener(v -> withStoragePermission(() -> presenter.onSaveClicked()));
     }
 
+    private void setUpUndoRedoButtons() {
+        undoTopBarButton = findViewById(R.id.undoTopBarButton);
+        redoTopBarButton = findViewById(R.id.redoTopBarButton);
+        undoTopBarButton.setEnabled(false);
+        redoTopBarButton.setEnabled(false);
+        undoTopBarButton.setAlpha(0.35f);
+        redoTopBarButton.setAlpha(0.35f);
+        undoTopBarButton.setOnClickListener(v -> presenter.onUndoRequested());
+        redoTopBarButton.setOnClickListener(v -> presenter.onRedoRequested());
+    }
+
+    private void setUpToolActionsRow() {
+        findViewById(R.id.toolCancelButton).setOnClickListener(v -> {
+            if (customCropActive) {
+                cancelCustomCrop();
+            }
+            presenter.onCancelRequested();
+            closeSheet();
+        });
+        findViewById(R.id.toolApplyButton).setOnClickListener(v -> {
+            if (customCropActive) {
+                cancelCustomCrop();
+            }
+            presenter.onApplyRequested();
+            closeSheet();
+        });
+    }
+
+    private void closeSheet() {
+        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        setNavSelected(-1);
+        activeTab = -1;
+    }
+
     private void setUpToolIcon(int includeRootId, int iconRes, int labelRes, Runnable action) {
         View root = findViewById(includeRootId);
         ImageView icon = root.findViewById(R.id.toolIcon);
@@ -460,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     @Override
-    public void showOriginalImage(Bitmap bitmap) {
+    public void showImage(Bitmap bitmap) {
         emptyStateText.setVisibility(View.GONE);
         mainImageView.setImageBitmap(bitmap);
         saveTopBarButton.setEnabled(true);
@@ -474,8 +518,11 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     @Override
-    public void showFilteredImage(Bitmap bitmap) {
-        mainImageView.setImageBitmap(bitmap);
+    public void showUndoRedoAvailability(boolean canUndo, boolean canRedo) {
+        undoTopBarButton.setEnabled(canUndo);
+        undoTopBarButton.setAlpha(canUndo ? 1f : 0.35f);
+        redoTopBarButton.setEnabled(canRedo);
+        redoTopBarButton.setAlpha(canRedo ? 1f : 0.35f);
     }
 
     @Override
