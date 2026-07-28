@@ -152,6 +152,16 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                     pendingTab = -1;
                     showTab(tab);
                     sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN && pendingTab == -1 && activeTab != -1) {
+                    // The sheet is hideable/draggable, so the user can swipe it away without
+                    // tapping Cancel/Apply or a nav button. Treat that the same as Cancel so the
+                    // draft never lingers desynced from the displayed image / history.current().
+                    if (customCropActive) {
+                        cancelCustomCrop();
+                    }
+                    presenter.onCancelRequested();
+                    setNavSelected(-1);
+                    activeTab = -1;
                 }
             }
 
@@ -200,9 +210,15 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                 cancelCustomCrop();
             }
             presenter.onCancelRequested();
-            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            // Reset activeTab/nav selection BEFORE hiding the sheet: BottomSheetBehavior.setState()
+            // invokes onStateChanged synchronously, and the drag-dismiss handling there keys off
+            // activeTab != -1 to detect an *unrequested* hide. Doing this after setState() would make
+            // that handling misfire on this explicit path too — double-cancelling and bumping
+            // requestId again, which would invalidate the thumbnail-regen this onCancelRequested()
+            // call didn't even dispatch, or (worse, on the Apply path below) the one Apply just did.
             setNavSelected(-1);
             activeTab = -1;
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             return;
         }
         if (sheetOpen) {
@@ -380,9 +396,15 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     private void closeSheet() {
-        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        // Reset activeTab/nav selection BEFORE hiding the sheet — see the comment on the matching
+        // reset in onTabTapped's collapse-current-tab branch: setState() invokes onStateChanged
+        // synchronously, and the drag-dismiss detection there keys off activeTab != -1, so it must
+        // already be -1 by the time setState() runs or this explicit Cancel/Apply path would also
+        // trigger a redundant onCancelRequested() (and, on the Apply path, invalidate the
+        // thumbnail-regen Apply just dispatched via a spurious requestId bump).
         setNavSelected(-1);
         activeTab = -1;
+        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     private void setUpToolIcon(int includeRootId, int iconRes, int labelRes, Runnable action) {

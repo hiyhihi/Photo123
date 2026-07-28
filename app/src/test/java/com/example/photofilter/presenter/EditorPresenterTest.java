@@ -20,6 +20,7 @@ import org.robolectric.Shadows;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
@@ -243,6 +244,28 @@ public class EditorPresenterTest {
         Bitmap result = view.images.get(view.images.size() - 1);
         assertEquals(pristineWidth, result.getWidth());
         assertEquals(pristineHeight, result.getHeight());
+    }
+
+    @Test
+    public void onCropRequested_original_producesBitmapDistinctFromPristine() {
+        // Regression guard for aliasing history.pristineOriginal() into the draft: AOSP's
+        // Bitmap.createBitmap(Bitmap, 0, 0, w, h) has a fast path that returns the SAME
+        // object (not a copy) for an immutable source when the full width/height is
+        // requested with no matrix. Robolectric's Bitmap shadow may not reproduce that
+        // short-circuit, so this test can pass even with the buggy code under test — it's
+        // here to document/pin the identity contract, not to be the sole detection method.
+        pickImage();
+        Bitmap pristine = view.images.get(0);
+
+        presenter.onToolTabOpened();
+        presenter.onCropRequested(CropRatio.ORIGINAL);
+        idleMainLooper();
+        presenter.onApplyRequested();
+        idleMainLooper();
+
+        Bitmap result = view.images.get(view.images.size() - 1);
+        assertNotSame("Crop 'Original' must never hand the pristine Bitmap object itself into the "
+                + "draft/history chain — it must always be a fresh copy.", pristine, result);
     }
 
     @Test

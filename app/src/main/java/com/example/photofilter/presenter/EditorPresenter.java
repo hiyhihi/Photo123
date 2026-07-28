@@ -57,6 +57,16 @@ public class EditorPresenter implements EditorContract.Presenter {
     /** Bumped on every new user action; stale async results compare against it and are discarded. */
     private int requestId;
 
+    /**
+     * Counts background ops currently reading {@code draftBitmap}/{@code draftBaseBitmap}
+     * (dispatched from {@link #onFilterSelected}, {@link #onAdjustValuesChanged},
+     * {@link #applyGeometryOpFrom}, {@link #applyAiToolDraft}). While positive, {@link #clearDraft()}
+     * must not recycle {@code draftBitmap}: a Cancel/tab-switch can now run synchronously on the
+     * main thread while one of those ops is still mid-computation on the executor thread with
+     * that exact Bitmap as its source, and recycling out from under it crashes.
+     */
+    private int pendingOps;
+
     public EditorPresenter(Context context) {
         this(context, Executors.newSingleThreadExecutor(), new ImageRepository(),
                 new HistoryRepository(context), new FavoriteRepository(context));
@@ -181,6 +191,10 @@ public class EditorPresenter implements EditorContract.Presenter {
 
     @Override
     public void onToolTabOpened() {
+        // Defensive: cleans up any draft left behind by a path that bypassed an explicit
+        // Cancel (e.g. the user drags the bottom sheet closed instead of tapping Cancel/a
+        // nav button) so a leftover draftBitmap is never silently overwritten/orphaned.
+        clearDraft();
         if (history.current() == null) {
             return;
         }
@@ -243,7 +257,11 @@ public class EditorPresenter implements EditorContract.Presenter {
     }
 
     private void clearDraft() {
-        if (draftBitmap != null && draftBitmap != draftBaseBitmap) {
+        // If a background op is still reading draftBitmap as its source (pendingOps > 0), leave
+        // it unrecycled rather than racing the executor thread; it becomes unreachable garbage
+        // for the JVM but is never actively read/mutated as a Bitmap after this point, since its
+        // eventual mainHandler callback will find requestId stale and just recycle its own result.
+        if (draftBitmap != null && draftBitmap != draftBaseBitmap && pendingOps == 0) {
             recycleIfPossible(draftBitmap);
         }
         draftBitmap = null;
@@ -267,9 +285,11 @@ public class EditorPresenter implements EditorContract.Presenter {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = filterItem.getFilter().apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
@@ -307,9 +327,11 @@ public class EditorPresenter implements EditorContract.Presenter {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = new ColorAdjustFilter(brightness, contrast, saturation, hue, exposure).apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
@@ -335,7 +357,17 @@ public class EditorPresenter implements EditorContract.Presenter {
         if (ratio == CropRatio.ORIGINAL) {
             // Bypasses the cumulative draft chain on purpose: "Original" always means
             // the true pristine image, not "undo my last crop within this session".
-            applyGeometryOpFrom(history.pristineOriginal(), source -> CropUtils.centerCrop(source, CropRatio.ORIGINAL));
+            // Deliberately uses Bitmap.copy(), NOT CropUtils.centerCrop()/Bitmap.createBitmap():
+            // AOSP's Bitmap.createBitmap(Bitmap, x, y, w, h) has a documented fast path that
+            // returns the SAME object (no copy) when the source is immutable and the full
+            // width/height is requested with no matrix — exactly the case here, since
+            // ImageRepository.loadDownsampled decodes via BitmapFactory without inMutable.
+            // That would alias history.pristineOriginal() straight into the draft, and a
+            // later Cancel/clearDraft() or an EditHistory.commit()-triggered redo-stack clear
+            // would recycle it, leaving pristineOriginal() a permanently dangling recycled
+            // Bitmap for the rest of the session. Bitmap.copy() always allocates a new object.
+            applyGeometryOpFrom(history.pristineOriginal(),
+                    source -> source.copy(source.getConfig() != null ? source.getConfig() : Bitmap.Config.ARGB_8888, false));
             return;
         }
         applyGeometryDraftOp(source -> CropUtils.centerCrop(source, ratio));
@@ -364,9 +396,11 @@ public class EditorPresenter implements EditorContract.Presenter {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = op.apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
@@ -415,10 +449,12 @@ public class EditorPresenter implements EditorContract.Presenter {
         if (view != null) {
             view.showLoading(true);
         }
+        pendingOps++;
         executor.execute(() -> {
             try {
                 Bitmap result = op.apply(source);
                 mainHandler.post(() -> {
+                    pendingOps--;
                     if (myRequestId != requestId || view == null) {
                         result.recycle();
                         return;
@@ -429,6 +465,7 @@ public class EditorPresenter implements EditorContract.Presenter {
                 });
             } catch (IOException e) {
                 mainHandler.post(() -> {
+                    pendingOps--;
                     if (myRequestId != requestId || view == null) {
                         return;
                     }
