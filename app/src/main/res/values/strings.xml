@@ -28,6 +28,8 @@
     <string name="action_crop_custom">Tự do</string>
     <string name="action_confirm">Xác nhận</string>
     <string name="action_cancel">Huỷ</string>
+    <string name="action_undo">Hoàn tác</string>
+    <string name="action_redo">Làm lại</string>
     <string name="section_filters">Bộ lọc</string>
 
     <string name="nav_filters">Bộ lọc</string>
