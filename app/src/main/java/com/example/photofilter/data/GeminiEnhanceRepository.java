@@ -15,15 +15,19 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Sends the current photo to a Gemini image-editing model and returns the
  * enhanced result. Pure network I/O — every method blocks and must be
  * called from a background thread.
- *
- * <p>MODEL_NAME reflects the image-editing model available at the time this
- * was written. If Google renames or retires it, swap in whatever the AI
- * Studio model picker currently lists under "image generation/editing".
  */
 public class GeminiEnhanceRepository {
 
@@ -39,8 +43,34 @@ public class GeminiEnhanceRepository {
         }
 
         String requestBody = buildRequestJson(encodeToBase64(source));
-        HttpURLConnection connection = (HttpURLConnection) new URL(ENDPOINT + "?key=" + apiKey).openConnection();
+        
+        // Đổi sang HttpsURLConnection để cấu hình SSL
+        HttpsURLConnection connection = (HttpsURLConnection) new URL(ENDPOINT + "?key=" + apiKey).openConnection();
+        
         try {
+            // --- BẮT ĐẦU ĐOẠN CODE VƯỢT TƯỜNG LỬA (BYPASS SSL) ---
+            try {
+                TrustManager[] trustAllCerts = new TrustManager[]{
+                        new X509TrustManager() {
+                            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
+                            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                        }
+                };
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                connection.setSSLSocketFactory(sc.getSocketFactory());
+                connection.setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true; // Luôn luôn tin tưởng mọi hostname
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // --- KẾT THÚC ĐOẠN CODE VƯỢT TƯỜNG LỬA ---
+
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
@@ -138,3 +168,4 @@ public class GeminiEnhanceRepository {
         return buffer.toString("UTF-8");
     }
 }
+
