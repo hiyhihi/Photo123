@@ -329,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     private void setUpAiPanel() {
-        setUpToolIcon(R.id.aiEnhanceButton, R.drawable.ic_tab_ai, R.string.ai_tool_enhance, () -> presenter.onAiEnhanceRequested());
         setUpToolIcon(R.id.aiSharpenButton, R.drawable.ic_ai_sharpen, R.string.ai_tool_sharpen, () -> presenter.onSharpenRequested());
         setUpToolIcon(R.id.aiDenoiseButton, R.drawable.ic_ai_denoise, R.string.ai_tool_remove_noise, () -> presenter.onRemoveNoiseRequested());
         setUpToolIcon(R.id.aiUpscaleButton, R.drawable.ic_ai_upscale, R.string.ai_tool_upscale, () -> presenter.onUpscaleRequested());

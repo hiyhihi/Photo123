@@ -65,8 +65,6 @@ public interface EditorContract {
         /** @param scalePercent target size as a percentage of the current image, e.g. 150 = 150%. */
         void onResizeRequested(int scalePercent);
 
-        void onAiEnhanceRequested();
-
         void onSharpenRequested();
 
         void onRemoveNoiseRequested();

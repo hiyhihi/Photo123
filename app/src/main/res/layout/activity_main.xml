@@ -304,8 +304,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <include layout="@layout/item_tool_icon" android:id="@+id/aiEnhanceButton" />
-                <include layout="@layout/item_tool_icon" android:id="@+id/aiSharpenButton" android:layout_marginStart="10dp" />
+                <include layout="@layout/item_tool_icon" android:id="@+id/aiSharpenButton" />
                 <include layout="@layout/item_tool_icon" android:id="@+id/aiDenoiseButton" android:layout_marginStart="10dp" />
                 <include layout="@layout/item_tool_icon" android:id="@+id/aiUpscaleButton" android:layout_marginStart="10dp" />
                 <include layout="@layout/item_tool_icon" android:id="@+id/aiBgRemovalButton" android:layout_marginStart="10dp" />

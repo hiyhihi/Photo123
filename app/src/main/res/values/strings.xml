@@ -28,7 +28,6 @@
     <string name="action_crop_custom">Tự do</string>
     <string name="action_confirm">Xác nhận</string>
     <string name="action_cancel">Huỷ</string>
-    <string name="action_ai_enhance">AI tăng cường</string>
     <string name="section_filters">Bộ lọc</string>
 
     <string name="nav_filters">Bộ lọc</string>
@@ -54,7 +53,6 @@
     <string name="adjust_hue">Sắc độ</string>
     <string name="adjust_exposure">Phơi sáng</string>
 
-    <string name="ai_tool_enhance">Tăng cường</string>
     <string name="ai_tool_sharpen">Làm nét</string>
     <string name="ai_tool_remove_noise">Khử nhiễu</string>
     <string name="ai_tool_upscale">Tăng độ phân giải</string>
@@ -93,7 +91,6 @@
     <string name="error_open_image">Không thể mở ảnh này</string>
     <string name="error_save_image">Không thể lưu ảnh</string>
     <string name="error_camera">Không thể mở camera</string>
-    <string name="error_ai_enhance">Không thể tăng cường ảnh bằng AI lúc này</string>
 
     <string name="content_desc_main_image">Ảnh đang chỉnh sửa</string>
     <string name="content_desc_filter_thumbnail">Xem trước bộ lọc %1$s</string>
@@ -110,13 +107,10 @@
     <string name="home_card_gallery_subtitle">Pick from library</string>
     <string name="home_card_camera">Camera</string>
     <string name="home_card_camera_subtitle">Capture the moment</string>
-    <string name="home_card_ai_enhance">AI Enhance</string>
-    <string name="home_card_ai_enhance_subtitle">One-tap magic</string>
+    <string name="home_card_ai_enhance">AI Tools</string>
+    <string name="home_card_ai_enhance_subtitle">Sharpen, denoise &amp; more</string>
     <string name="home_card_history">History</string>
     <string name="home_card_history_subtitle">Your saved edits</string>
     <string name="home_recent_photos_title">Recent Photos</string>
     <string name="home_recent_photos_empty">No photos yet — start editing to see them here</string>
-
-    <string name="ai_enhance_progress">AI đang xử lý ảnh…</string>
-    <string name="ai_enhance_success">Đã tăng cường ảnh bằng AI</string>
 </resources>

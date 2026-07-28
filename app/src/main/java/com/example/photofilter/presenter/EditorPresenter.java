@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.photofilter.BuildConfig;
 import com.example.photofilter.R;
 import com.example.photofilter.data.AiToolsRepository;
 import com.example.photofilter.data.BackgroundRemovalRepository;
@@ -16,7 +15,6 @@ import com.example.photofilter.data.CropUtils;
 import com.example.photofilter.data.FavoriteRepository;
 import com.example.photofilter.data.FilterItem;
 import com.example.photofilter.data.FilterRepository;
-import com.example.photofilter.data.GeminiEnhanceRepository;
 import com.example.photofilter.data.HistoryRepository;
 import com.example.photofilter.data.ImageRepository;
 import com.example.photofilter.domain.filter.ColorAdjustFilter;
@@ -38,7 +36,6 @@ public class EditorPresenter implements EditorContract.Presenter {
     private final FilterRepository filterRepository;
     private final HistoryRepository historyRepository;
     private final FavoriteRepository favoriteRepository;
-    private final GeminiEnhanceRepository aiEnhanceRepository = new GeminiEnhanceRepository();
     private final AiToolsRepository aiToolsRepository = new AiToolsRepository();
     private final BackgroundRemovalRepository backgroundRemovalRepository = new BackgroundRemovalRepository();
     private final ExecutorService executor;
@@ -306,12 +303,6 @@ public class EditorPresenter implements EditorContract.Presenter {
 
     private interface GeometryOp {
         Bitmap apply(Bitmap source);
-    }
-
-    @Override
-    public void onAiEnhanceRequested() {
-        applyAiTool(appContext.getString(R.string.action_ai_enhance), appContext.getString(R.string.error_ai_enhance),
-                source -> aiEnhanceRepository.enhance(source, BuildConfig.GEMINI_API_KEY));
     }
 
     @Override
