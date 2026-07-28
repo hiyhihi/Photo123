@@ -20,9 +20,7 @@ public interface EditorContract {
     interface View {
         void showFilterList(List<FilterItem> filters);
 
-        void showOriginalImage(Bitmap bitmap);
-
-        void showFilteredImage(Bitmap bitmap);
+        void showImage(Bitmap bitmap);
 
         void showFilterThumbnails(List<FilterThumbnail> thumbnails);
 
@@ -33,6 +31,8 @@ public interface EditorContract {
         void showError(String message);
 
         void showSaveResult(boolean success, Uri savedUri);
+
+        void showUndoRedoAvailability(boolean canUndo, boolean canRedo);
 
         void launchShareIntent(Uri uri);
     }
@@ -46,6 +46,19 @@ public interface EditorContract {
 
         /** Synchronous: creates the MediaStore target the camera app should write into. Returns null on failure. */
         Uri createCameraOutputUri();
+
+        /** Call when a tool tab (Bộ lọc/Cắt/Tuỳ chỉnh/AI) becomes visible: starts a new draft from the current committed image. */
+        void onToolTabOpened();
+
+        /** Commits the current draft as one Undo step. No-op (same as Cancel) if the draft is unchanged. */
+        void onApplyRequested();
+
+        /** Discards the current draft; the displayed image reverts to the last committed state. */
+        void onCancelRequested();
+
+        void onUndoRequested();
+
+        void onRedoRequested();
 
         void onFilterSelected(FilterItem filterItem);
 
