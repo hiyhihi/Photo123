@@ -30,6 +30,30 @@
             android:textSize="22sp" />
 
         <ImageButton
+            android:id="@+id/undoTopBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="96dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_undo"
+            android:padding="10dp"
+            android:src="@drawable/ic_undo"
+            android:tint="@color/accent_yellow" />
+
+        <ImageButton
+            android:id="@+id/redoTopBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_redo"
+            android:padding="10dp"
+            android:src="@drawable/ic_redo"
+            android:tint="@color/accent_yellow" />
+
+        <ImageButton
             android:id="@+id/saveTopBarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,6 +120,11 @@
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="true"
         app:behavior_peekHeight="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -316,6 +345,48 @@
         </FrameLayout>
 
         </androidx.core.widget.NestedScrollView>
+
+        <LinearLayout
+            android:id="@+id/toolActionsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="12dp">
+
+            <Button
+                android:id="@+id/toolCancelButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button_ghost"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_semibold"
+                android:text="@string/action_cancel"
+                android:textAllCaps="false"
+                android:textColor="@color/accent_yellow"
+                android:elevation="0dp" />
+
+            <Button
+                android:id="@+id/toolApplyButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_button_primary"
+                android:backgroundTint="@null"
+                app:backgroundTint="@null"
+                android:fontFamily="@font/inter_semibold"
+                android:text="@string/action_confirm"
+                android:textAllCaps="false"
+                android:textColor="@color/text_on_accent"
+                android:elevation="0dp" />
+
+        </LinearLayout>
+
+        </LinearLayout>
 
     </FrameLayout>
 
