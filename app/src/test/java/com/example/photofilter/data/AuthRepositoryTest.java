@@ -77,4 +77,16 @@ public class AuthRepositoryTest {
         assertFalse(repository.isLoggedIn());
         assertNull(repository.getCurrentUserEmail());
     }
+
+    @Test
+    public void hasSeenIntro_initiallyFalse() {
+        assertFalse(repository.hasSeenIntro());
+    }
+
+    @Test
+    public void markIntroSeen_persists() {
+        repository.markIntroSeen();
+
+        assertTrue(repository.hasSeenIntro());
+    }
 }

@@ -15,6 +15,7 @@ public class AuthRepository {
 
     private static final String PREFS_NAME = "auth_session";
     private static final String KEY_CURRENT_EMAIL = "current_email";
+    private static final String KEY_INTRO_SHOWN = "intro_shown";
 
     private final UserRepository userRepository;
     private final SharedPreferences prefs;
@@ -31,6 +32,15 @@ public class AuthRepository {
 
     public String getCurrentUserEmail() {
         return prefs.getString(KEY_CURRENT_EMAIL, null);
+    }
+
+    /** Theo thiết bị, không theo tài khoản — dùng chung cho mọi user đăng nhập trên máy này. */
+    public boolean hasSeenIntro() {
+        return prefs.getBoolean(KEY_INTRO_SHOWN, false);
+    }
+
+    public void markIntroSeen() {
+        prefs.edit().putBoolean(KEY_INTRO_SHOWN, true).apply();
     }
 
     /** @return null on success, or a user-facing error message. */
