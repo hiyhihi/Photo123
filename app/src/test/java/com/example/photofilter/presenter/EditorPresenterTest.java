@@ -177,32 +177,6 @@ public class EditorPresenterTest {
     }
 
     @Test
-    public void onResizeRequested_thenApply_replacesCommittedImage() {
-        pickImage();
-
-        presenter.onToolTabOpened();
-        presenter.onResizeRequested(150);
-        idleMainLooper();
-        presenter.onApplyRequested();
-        idleMainLooper();
-
-        Bitmap committed = view.images.get(view.images.size() - 1);
-        assertEquals(30, committed.getWidth());
-    }
-
-    @Test
-    public void onResizeRequested_with100Percent_doesNothing() {
-        pickImage();
-        int imagesBefore = view.images.size();
-
-        presenter.onToolTabOpened();
-        presenter.onResizeRequested(100);
-        idleMainLooper();
-
-        assertEquals(imagesBefore, view.images.size());
-    }
-
-    @Test
     public void onRotateRequested_thenApply_swapsWidthAndHeight() {
         pickImage();
         int originalWidth = view.images.get(0).getWidth();

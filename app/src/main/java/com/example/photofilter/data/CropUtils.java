@@ -4,18 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 
-/** Pure bitmap-geometry helpers used by the Crop tool sheet: center-crop, rotate, flip, resize. */
+/** Pure bitmap-geometry helpers used by the Crop tool sheet: center-crop, rotate, flip. */
 public final class CropUtils {
 
     private CropUtils() {
-    }
-
-    /** Scales the bitmap to {@code scalePercent}% of its current size (e.g. 150 = 150%). */
-    public static Bitmap resize(Bitmap source, int scalePercent) {
-        float scale = scalePercent / 100f;
-        int newWidth = Math.max(1, Math.round(source.getWidth() * scale));
-        int newHeight = Math.max(1, Math.round(source.getHeight() * scale));
-        return Bitmap.createScaledBitmap(source, newWidth, newHeight, true);
     }
 
     public static Bitmap rotate90(Bitmap source) {

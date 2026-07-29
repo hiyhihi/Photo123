@@ -380,15 +380,7 @@ public class EditorPresenter implements EditorContract.Presenter {
         applyGeometryDraftOp(source -> CropUtils.customCrop(source, normalizedRect));
     }
 
-    @Override
-    public void onResizeRequested(int scalePercent) {
-        if (scalePercent == 100) {
-            return;
-        }
-        applyGeometryDraftOp(source -> CropUtils.resize(source, scalePercent));
-    }
-
-    /** Cumulative geometry op: reads and replaces `draftBitmap` (Cắt tab keeps stacking Rotate/Flip/Crop/Resize). */
+    /** Cumulative geometry op: reads and replaces `draftBitmap` (Cắt tab keeps stacking Rotate/Flip/Crop). */
     private void applyGeometryDraftOp(GeometryOp op) {
         applyGeometryOpFrom(draftBitmap, op);
     }
