@@ -30,30 +30,6 @@
             android:textSize="22sp" />
 
         <ImageButton
-            android:id="@+id/undoTopBarButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="96dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_undo"
-            android:padding="10dp"
-            android:src="@drawable/ic_undo"
-            android:tint="@color/accent_yellow" />
-
-        <ImageButton
-            android:id="@+id/redoTopBarButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_redo"
-            android:padding="10dp"
-            android:src="@drawable/ic_redo"
-            android:tint="@color/accent_yellow" />
-
-        <ImageButton
             android:id="@+id/saveTopBarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,6 +38,28 @@
             android:contentDescription="@string/action_save"
             android:padding="10dp"
             android:src="@drawable/ic_export_save"
+            android:tint="@color/accent_yellow" />
+
+        <ImageButton
+            android:id="@+id/redoTopBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_redo"
+            android:padding="10dp"
+            android:src="@drawable/ic_redo"
+            android:tint="@color/accent_yellow" />
+
+        <ImageButton
+            android:id="@+id/undoTopBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_undo"
+            android:padding="10dp"
+            android:src="@drawable/ic_undo"
             android:tint="@color/accent_yellow" />
 
     </com.google.android.material.appbar.MaterialToolbar>
