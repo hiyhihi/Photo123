@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.photofilter.BuildConfig;
 import com.example.photofilter.R;
 import com.example.photofilter.data.AiToolsRepository;
 import com.example.photofilter.data.BackgroundRemovalRepository;
@@ -16,7 +15,6 @@ import com.example.photofilter.data.CropUtils;
 import com.example.photofilter.data.FavoriteRepository;
 import com.example.photofilter.data.FilterItem;
 import com.example.photofilter.data.FilterRepository;
-import com.example.photofilter.data.GeminiEnhanceRepository;
 import com.example.photofilter.data.HistoryRepository;
 import com.example.photofilter.data.ImageRepository;
 import com.example.photofilter.domain.filter.ColorAdjustFilter;
@@ -38,23 +36,36 @@ public class EditorPresenter implements EditorContract.Presenter {
     private final FilterRepository filterRepository;
     private final HistoryRepository historyRepository;
     private final FavoriteRepository favoriteRepository;
-    private final GeminiEnhanceRepository aiEnhanceRepository = new GeminiEnhanceRepository();
     private final AiToolsRepository aiToolsRepository = new AiToolsRepository();
     private final BackgroundRemovalRepository backgroundRemovalRepository = new BackgroundRemovalRepository();
     private final ExecutorService executor;
     private final Handler mainHandler;
+    private final EditHistory history = new EditHistory();
 
     private EditorContract.View view;
     private List<FilterItem> availableFilters;
     private List<FilterThumbnail> currentThumbnails;
     private Set<String> favoriteIds;
-    private Bitmap originalBitmap;
-    private Bitmap currentFilteredBitmap;
-    private String currentFilterLabel;
     private Uri lastSavedUri;
+
+    /** The image + label a tool tab started editing from; recomputed by non-cumulative tools (Bộ lọc/Tuỳ chỉnh). */
+    private Bitmap draftBaseBitmap;
+    /** The live preview; recomputed by cumulative tools (Cắt/AI) on top of itself, and shown to the View. */
+    private Bitmap draftBitmap;
+    private String draftLabel;
 
     /** Bumped on every new user action; stale async results compare against it and are discarded. */
     private int requestId;
+
+    /**
+     * Counts background ops currently reading {@code draftBitmap}/{@code draftBaseBitmap}
+     * (dispatched from {@link #onFilterSelected}, {@link #onAdjustValuesChanged},
+     * {@link #applyGeometryOpFrom}, {@link #applyAiToolDraft}). While positive, {@link #clearDraft()}
+     * must not recycle {@code draftBitmap}: a Cancel/tab-switch can now run synchronously on the
+     * main thread while one of those ops is still mid-computation on the executor thread with
+     * that exact Bitmap as its source, and recycling out from under it crashes.
+     */
+    private int pendingOps;
 
     public EditorPresenter(Context context) {
         this(context, Executors.newSingleThreadExecutor(), new ImageRepository(),
@@ -80,11 +91,9 @@ public class EditorPresenter implements EditorContract.Presenter {
             availableFilters = filterRepository.getAvailableFilters(appContext);
         }
         view.showFilterList(availableFilters);
-        if (originalBitmap != null) {
-            view.showOriginalImage(originalBitmap);
-        }
-        if (currentFilteredBitmap != null) {
-            view.showFilteredImage(currentFilteredBitmap);
+        if (history.current() != null) {
+            view.showImage(history.current());
+            view.showUndoRedoAvailability(history.canUndo(), history.canRedo());
         }
         if (currentThumbnails != null) {
             view.showFilterThumbnails(currentThumbnails);
@@ -108,11 +117,9 @@ public class EditorPresenter implements EditorContract.Presenter {
     public void detachView() {
         this.view = null;
         executor.shutdown(); // let an in-flight save finish writing rather than corrupting the file
-        recycleIfPossible(originalBitmap);
-        recycleIfPossible(currentFilteredBitmap);
+        clearDraft();
+        history.clearAll();
         recycleThumbnails(currentThumbnails);
-        originalBitmap = null;
-        currentFilteredBitmap = null;
         currentThumbnails = null;
     }
 
@@ -142,11 +149,10 @@ public class EditorPresenter implements EditorContract.Presenter {
                         loaded.recycle();
                         return;
                     }
-                    replaceOriginalBitmap(loaded);
-                    lastSavedUri = null;
+                    clearDraft();
+                    history.reset(loaded, appContext.getString(R.string.filter_original));
                     view.showLoading(false);
-                    view.showOriginalImage(loaded);
-                    generateThumbnails(myRequestId, loaded);
+                    afterHistoryChange();
                 });
             } catch (IOException e) {
                 mainHandler.post(() -> {
@@ -184,25 +190,112 @@ public class EditorPresenter implements EditorContract.Presenter {
     }
 
     @Override
+    public void onToolTabOpened() {
+        // Defensive: cleans up any draft left behind by a path that bypassed an explicit
+        // Cancel (e.g. the user drags the bottom sheet closed instead of tapping Cancel/a
+        // nav button) so a leftover draftBitmap is never silently overwritten/orphaned.
+        clearDraft();
+        if (history.current() == null) {
+            return;
+        }
+        draftBaseBitmap = history.current();
+        draftBitmap = draftBaseBitmap;
+        draftLabel = history.currentLabel();
+    }
+
+    @Override
+    public void onApplyRequested() {
+        if (draftBitmap == null || draftBitmap == draftBaseBitmap) {
+            onCancelRequested();
+            return;
+        }
+        Bitmap committed = draftBitmap;
+        String label = draftLabel != null ? draftLabel : history.currentLabel();
+        draftBitmap = null;
+        draftBaseBitmap = null;
+        draftLabel = null;
+        history.commit(committed, label);
+        afterHistoryChange();
+    }
+
+    @Override
+    public void onCancelRequested() {
+        ++requestId; // discard any in-flight draft computation
+        clearDraft();
+        if (view != null) {
+            view.showImage(history.current());
+        }
+    }
+
+    @Override
+    public void onUndoRequested() {
+        if (!history.canUndo()) {
+            return;
+        }
+        history.undo();
+        afterHistoryChange();
+    }
+
+    @Override
+    public void onRedoRequested() {
+        if (!history.canRedo()) {
+            return;
+        }
+        history.redo();
+        afterHistoryChange();
+    }
+
+    /** Common tail for anything that changes the committed image: image pick, Apply, Undo, Redo. */
+    private void afterHistoryChange() {
+        lastSavedUri = null;
+        if (view != null) {
+            view.showImage(history.current());
+            view.showUndoRedoAvailability(history.canUndo(), history.canRedo());
+        }
+        final int myRequestId = ++requestId;
+        generateThumbnails(myRequestId, history.current());
+    }
+
+    private void clearDraft() {
+        // If a background op is still reading draftBitmap as its source (pendingOps > 0), leave
+        // it unrecycled rather than racing the executor thread; it becomes unreachable garbage
+        // for the JVM but is never actively read/mutated as a Bitmap after this point, since its
+        // eventual mainHandler callback will find requestId stale and just recycle its own result.
+        if (draftBitmap != null && draftBitmap != draftBaseBitmap && pendingOps == 0) {
+            recycleIfPossible(draftBitmap);
+        }
+        draftBitmap = null;
+        draftBaseBitmap = null;
+        draftLabel = null;
+    }
+
+    /** Replaces the draft bitmap, recycling the previous one unless it's still `draftBaseBitmap`/history-owned. */
+    private void updateDraft(Bitmap newDraft, String label) {
+        if (draftBitmap != null && draftBitmap != draftBaseBitmap) {
+            recycleIfPossible(draftBitmap);
+        }
+        draftBitmap = newDraft;
+        draftLabel = label;
+    }
+
+    @Override
     public void onFilterSelected(FilterItem filterItem) {
-        final Bitmap source = originalBitmap;
+        final Bitmap source = draftBaseBitmap;
         if (source == null) {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = filterItem.getFilter().apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
                 }
-                Bitmap old = currentFilteredBitmap;
-                currentFilteredBitmap = result;
-                currentFilterLabel = filterItem.getDisplayName();
-                lastSavedUri = null;
-                view.showFilteredImage(result);
-                recycleIfPossible(old);
+                updateDraft(result, filterItem.getDisplayName());
+                view.showImage(result);
             });
         });
     }
@@ -229,49 +322,60 @@ public class EditorPresenter implements EditorContract.Presenter {
 
     @Override
     public void onAdjustValuesChanged(int brightness, int contrast, int saturation, int hue, int exposure) {
-        final Bitmap source = originalBitmap;
+        final Bitmap source = draftBaseBitmap;
         if (source == null) {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = new ColorAdjustFilter(brightness, contrast, saturation, hue, exposure).apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
                 }
-                Bitmap old = currentFilteredBitmap;
-                currentFilteredBitmap = result;
-                currentFilterLabel = appContext.getString(R.string.filter_adjust);
-                lastSavedUri = null;
-                view.showFilteredImage(result);
-                recycleIfPossible(old);
+                updateDraft(result, appContext.getString(R.string.filter_adjust));
+                view.showImage(result);
             });
         });
     }
 
     @Override
     public void onRotateRequested() {
-        applyGeometryChange(CropUtils::rotate90);
+        applyGeometryDraftOp(CropUtils::rotate90);
     }
 
     @Override
     public void onFlipRequested() {
-        applyGeometryChange(CropUtils::flipHorizontal);
+        applyGeometryDraftOp(CropUtils::flipHorizontal);
     }
 
     @Override
     public void onCropRequested(CropRatio ratio) {
         if (ratio == CropRatio.ORIGINAL) {
+            // Bypasses the cumulative draft chain on purpose: "Original" always means
+            // the true pristine image, not "undo my last crop within this session".
+            // Deliberately uses Bitmap.copy(), NOT CropUtils.centerCrop()/Bitmap.createBitmap():
+            // AOSP's Bitmap.createBitmap(Bitmap, x, y, w, h) has a documented fast path that
+            // returns the SAME object (no copy) when the source is immutable and the full
+            // width/height is requested with no matrix — exactly the case here, since
+            // ImageRepository.loadDownsampled decodes via BitmapFactory without inMutable.
+            // That would alias history.pristineOriginal() straight into the draft, and a
+            // later Cancel/clearDraft() or an EditHistory.commit()-triggered redo-stack clear
+            // would recycle it, leaving pristineOriginal() a permanently dangling recycled
+            // Bitmap for the rest of the session. Bitmap.copy() always allocates a new object.
+            applyGeometryOpFrom(history.pristineOriginal(),
+                    source -> source.copy(source.getConfig() != null ? source.getConfig() : Bitmap.Config.ARGB_8888, false));
             return;
         }
-        applyGeometryChange(source -> CropUtils.centerCrop(source, ratio));
+        applyGeometryDraftOp(source -> CropUtils.centerCrop(source, ratio));
     }
 
     @Override
     public void onCustomCropRequested(RectF normalizedRect) {
-        applyGeometryChange(source -> CropUtils.customCrop(source, normalizedRect));
+        applyGeometryDraftOp(source -> CropUtils.customCrop(source, normalizedRect));
     }
 
     @Override
@@ -279,27 +383,30 @@ public class EditorPresenter implements EditorContract.Presenter {
         if (scalePercent == 100) {
             return;
         }
-        applyGeometryChange(source -> CropUtils.resize(source, scalePercent));
+        applyGeometryDraftOp(source -> CropUtils.resize(source, scalePercent));
     }
 
-    /** Shared plumbing for rotate/flip/crop: all replace originalBitmap and regenerate thumbnails the same way. */
-    private void applyGeometryChange(GeometryOp op) {
-        final Bitmap source = originalBitmap;
+    /** Cumulative geometry op: reads and replaces `draftBitmap` (Cắt tab keeps stacking Rotate/Flip/Crop/Resize). */
+    private void applyGeometryDraftOp(GeometryOp op) {
+        applyGeometryOpFrom(draftBitmap, op);
+    }
+
+    private void applyGeometryOpFrom(Bitmap source, GeometryOp op) {
         if (source == null) {
             return;
         }
         final int myRequestId = ++requestId;
+        pendingOps++;
         executor.execute(() -> {
             Bitmap result = op.apply(source);
             mainHandler.post(() -> {
+                pendingOps--;
                 if (myRequestId != requestId || view == null) {
                     result.recycle();
                     return;
                 }
-                replaceOriginalBitmap(result);
-                lastSavedUri = null;
-                view.showOriginalImage(result);
-                generateThumbnails(myRequestId, result);
+                updateDraft(result, draftLabel);
+                view.showImage(result);
             });
         });
     }
@@ -309,38 +416,32 @@ public class EditorPresenter implements EditorContract.Presenter {
     }
 
     @Override
-    public void onAiEnhanceRequested() {
-        applyAiTool(appContext.getString(R.string.action_ai_enhance), appContext.getString(R.string.error_ai_enhance),
-                source -> aiEnhanceRepository.enhance(source, BuildConfig.GEMINI_API_KEY));
-    }
-
-    @Override
     public void onSharpenRequested() {
-        applyAiTool(appContext.getString(R.string.ai_tool_sharpen), appContext.getString(R.string.error_ai_tool),
+        applyAiToolDraft(appContext.getString(R.string.ai_tool_sharpen), appContext.getString(R.string.error_ai_tool),
                 aiToolsRepository::sharpen);
     }
 
     @Override
     public void onRemoveNoiseRequested() {
-        applyAiTool(appContext.getString(R.string.ai_tool_remove_noise), appContext.getString(R.string.error_ai_tool),
+        applyAiToolDraft(appContext.getString(R.string.ai_tool_remove_noise), appContext.getString(R.string.error_ai_tool),
                 aiToolsRepository::removeNoise);
     }
 
     @Override
     public void onUpscaleRequested() {
-        applyAiTool(appContext.getString(R.string.ai_tool_upscale), appContext.getString(R.string.error_ai_tool),
+        applyAiToolDraft(appContext.getString(R.string.ai_tool_upscale), appContext.getString(R.string.error_ai_tool),
                 aiToolsRepository::upscale);
     }
 
     @Override
     public void onBackgroundRemovalRequested() {
-        applyAiTool(appContext.getString(R.string.ai_tool_background_removal), appContext.getString(R.string.error_ai_tool),
+        applyAiToolDraft(appContext.getString(R.string.ai_tool_background_removal), appContext.getString(R.string.error_ai_tool),
                 backgroundRemovalRepository::removeBackground);
     }
 
-    /** Shared plumbing for every "AI tool": takes the currently displayed bitmap, runs {@code op} in the background. */
-    private void applyAiTool(String resultLabel, String errorMessage, BitmapOp op) {
-        final Bitmap source = currentFilteredBitmap != null ? currentFilteredBitmap : originalBitmap;
+    /** Cumulative AI op: reads and replaces `draftBitmap`, so e.g. Sharpen then Upscale can stack before one Apply. */
+    private void applyAiToolDraft(String resultLabel, String errorMessage, BitmapOp op) {
+        final Bitmap source = draftBitmap;
         if (source == null) {
             return;
         }
@@ -348,24 +449,23 @@ public class EditorPresenter implements EditorContract.Presenter {
         if (view != null) {
             view.showLoading(true);
         }
+        pendingOps++;
         executor.execute(() -> {
             try {
                 Bitmap result = op.apply(source);
                 mainHandler.post(() -> {
+                    pendingOps--;
                     if (myRequestId != requestId || view == null) {
                         result.recycle();
                         return;
                     }
-                    Bitmap old = currentFilteredBitmap;
-                    currentFilteredBitmap = result;
-                    currentFilterLabel = resultLabel;
-                    lastSavedUri = null;
+                    updateDraft(result, resultLabel);
                     view.showLoading(false);
-                    view.showFilteredImage(result);
-                    recycleIfPossible(old);
+                    view.showImage(result);
                 });
             } catch (IOException e) {
                 mainHandler.post(() -> {
+                    pendingOps--;
                     if (myRequestId != requestId || view == null) {
                         return;
                     }
@@ -379,17 +479,6 @@ public class EditorPresenter implements EditorContract.Presenter {
 
     private interface BitmapOp {
         Bitmap apply(Bitmap source) throws IOException;
-    }
-
-    /** Swaps in a new original bitmap (new image picked, rotated, or cropped), recycling whatever came before. */
-    private void replaceOriginalBitmap(Bitmap replacement) {
-        recycleIfPossible(originalBitmap);
-        recycleIfPossible(currentFilteredBitmap);
-        recycleThumbnails(currentThumbnails);
-        originalBitmap = replacement;
-        currentFilteredBitmap = null;
-        currentThumbnails = null;
-        currentFilterLabel = null;
     }
 
     @Override
@@ -420,7 +509,7 @@ public class EditorPresenter implements EditorContract.Presenter {
     }
 
     private void performSave(OnSaved onSaved, OnSaveFailed onFailed) {
-        Bitmap toSave = currentFilteredBitmap != null ? currentFilteredBitmap : originalBitmap;
+        Bitmap toSave = history.current();
         if (toSave == null) {
             return;
         }
@@ -428,9 +517,7 @@ public class EditorPresenter implements EditorContract.Presenter {
             onSaved.run(lastSavedUri);
             return;
         }
-        String filterName = currentFilterLabel != null
-                ? currentFilterLabel
-                : appContext.getString(R.string.filter_original);
+        String filterName = history.currentLabel();
         executor.execute(() -> {
             try {
                 String name = "PhotoFilter_" + System.currentTimeMillis() + ".jpg";

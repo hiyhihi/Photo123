@@ -13,11 +13,12 @@ import java.util.Set;
 final class FakeView implements EditorContract.View {
 
     final List<List<FilterItem>> filterLists = new ArrayList<>();
-    final List<Bitmap> originalImages = new ArrayList<>();
-    final List<Bitmap> filteredImages = new ArrayList<>();
+    final List<Bitmap> images = new ArrayList<>();
     final List<List<FilterThumbnail>> thumbnailBatches = new ArrayList<>();
     final List<Boolean> loadingStates = new ArrayList<>();
     final List<String> errors = new ArrayList<>();
+    final List<Boolean> undoAvailableStates = new ArrayList<>();
+    final List<Boolean> redoAvailableStates = new ArrayList<>();
     Boolean lastSaveSuccess;
     Uri lastSavedUri;
     Uri lastSharedUri;
@@ -29,13 +30,8 @@ final class FakeView implements EditorContract.View {
     }
 
     @Override
-    public void showOriginalImage(Bitmap bitmap) {
-        originalImages.add(bitmap);
-    }
-
-    @Override
-    public void showFilteredImage(Bitmap bitmap) {
-        filteredImages.add(bitmap);
+    public void showImage(Bitmap bitmap) {
+        images.add(bitmap);
     }
 
     @Override
@@ -57,6 +53,12 @@ final class FakeView implements EditorContract.View {
     public void showSaveResult(boolean success, Uri savedUri) {
         lastSaveSuccess = success;
         lastSavedUri = savedUri;
+    }
+
+    @Override
+    public void showUndoRedoAvailability(boolean canUndo, boolean canRedo) {
+        undoAvailableStates.add(canUndo);
+        redoAvailableStates.add(canRedo);
     }
 
     @Override

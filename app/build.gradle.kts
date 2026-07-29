@@ -1,16 +1,5 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
-}
-
-// Loaded from local.properties, which is gitignored — the key never gets committed.
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        load(FileInputStream(file))
-    }
 }
 
 android {
@@ -25,12 +14,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        val geminiApiKey = localProperties.getProperty("gemini.api.key", "").trim('"', ' ')
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 
     buildTypes {

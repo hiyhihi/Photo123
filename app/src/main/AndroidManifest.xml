@@ -6,7 +6,7 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <!-- Needed only for the optional AI-enhance call to the Gemini API. -->
+    <!-- Needed to download the ML Kit selfie-segmentation model on first use (Xoá nền). -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application

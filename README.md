@@ -15,7 +15,6 @@ Màu gốc, Trắng đen, Âm bản *(3 bộ lọc bắt buộc theo đề bài)
 
 ### AI
 
-- Tăng cường ảnh bằng Gemini API
 - Làm nét, Khử nhiễu, Tăng độ phân giải (xử lý ảnh cục bộ)
 - Xoá nền bằng ML Kit Selfie Segmentation (on-device)
 
@@ -38,7 +37,7 @@ Mô hình **MVP** (Model – View – Presenter), tách biệt rõ giao diện k
 
 ```text
 domain/filter/   Interface Filter + abstract BaseFilter (Template Method) + các bộ lọc cụ thể
-data/            Repository: đọc/ghi ảnh, SQLite (lịch sử, yêu thích, tài khoản), gọi AI (Gemini, ML Kit)
+data/            Repository: đọc/ghi ảnh, SQLite (lịch sử, yêu thích, tài khoản), gọi AI (ML Kit)
 presenter/       EditorContract (hợp đồng MVP) + EditorPresenter (điều phối nghiệp vụ, luồng nền)
 ui/              Activity/Adapter — chỉ hiển thị, không chứa logic xử lý ảnh
 ```
@@ -54,15 +53,12 @@ Bộ nhớ được quản lý chủ động: mọi `Bitmap` trung gian đều �
 - SQLite thuần (`SQLiteOpenHelper`) — không dùng Room
 - Material Components 3 (BottomSheetBehavior, MaterialCardView)
 - Glide (tải ảnh), androidx.exifinterface (đọc hướng ảnh)
-- Gemini REST API (AI tăng cường), ML Kit Selfie Segmentation (xoá nền)
+- ML Kit Selfie Segmentation (xoá nền)
 - Robolectric + JUnit + Mockito (unit test)
 
 ## Build & chạy
 
 ```bash
-# Tạo file local.properties (không commit) với dòng:
-# gemini.api.key="<API_KEY_CUA_BAN>"
-
 ./gradlew assembleDebug        # build APK debug
 ./gradlew testDebugUnitTest    # chạy unit test
 ```
