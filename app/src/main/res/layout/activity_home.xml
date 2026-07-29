@@ -132,7 +132,7 @@
 
                 <include layout="@layout/item_home_card" android:id="@+id/cardGallery" />
 
-                <include layout="@layout/item_home_card" android:id="@+id/cardCamera" android:layout_marginStart="16dp" />
+                <include layout="@layout/item_home_card" android:id="@+id/cardCamera" android:layout_marginStart="20dp" />
 
             </LinearLayout>
 
@@ -140,12 +140,12 @@
                 android:id="@+id/cardsRow2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
                 <include layout="@layout/item_home_card" android:id="@+id/cardAiEnhance" />
 
-                <include layout="@layout/item_home_card" android:id="@+id/cardHistory" android:layout_marginStart="16dp" />
+                <include layout="@layout/item_home_card" android:id="@+id/cardHistory" android:layout_marginStart="20dp" />
 
             </LinearLayout>
 
