@@ -1,0 +1,5 @@
+node_modules/
+render/
+render_ascii/
+extracted_media/
+ref_thumbs*.jpg
