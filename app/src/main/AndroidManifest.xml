@@ -33,6 +33,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.IntroActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.HomeActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

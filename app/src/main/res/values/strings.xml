@@ -89,6 +89,7 @@
     <string name="logout_confirm_message">Bạn có chắc muốn đăng xuất khỏi %1$s?</string>
     <string name="action_cancel_dialog">Huỷ</string>
     <string name="content_desc_account">Tài khoản</string>
+    <string name="intro_welcome_text">Welcome to H.A.T</string>
 
     <string name="error_open_image">Không thể mở ảnh này</string>
     <string name="error_save_image">Không thể lưu ảnh</string>
