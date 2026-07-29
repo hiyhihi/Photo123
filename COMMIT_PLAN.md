@@ -615,6 +615,128 @@ git push origin main
 
 ---
 
+## Ngày 7 — Undo/Redo + Apply/Cancel toàn cục, màn Intro chào mừng, tab Sticker, dọn UI
+
+**Chủ đề:** sửa bug "Cắt → Gốc" không đưa ảnh về đúng gốc; thêm Undo/Redo + Apply/Cancel nhất quán cho cả 4 tab (Bộ lọc/Cắt/Tuỳ chỉnh/AI); gỡ tính năng AI Enhance (Gemini) vì không dùng được (kèm gỡ luôn đoạn code bypass SSL không an toàn còn sót lại); thêm màn Intro chào mừng (giọng nói "Welcome to H.A.T" + Ken Burns zoom) hiện đúng 1 lần/máy sau lần đăng nhập/đăng ký đầu tiên, có nút xem lại trong menu tài khoản để tiện demo; thêm tab Sticker (dán/kéo/pinch-zoom/xoay sticker lên ảnh, 15 sticker OpenMoji CC BY-SA 4.0); đổi nhãn tab "AI" thành "Công cụ" cho đúng bản chất (3/4 công cụ không dùng ML thật); gỡ 5 nút Đổi cỡ (75–200%) không cần dùng; và một loạt sửa lỗi UI (icon Undo/Redo bị cắt mép, 2 hàng Huỷ/Xác nhận chồng nhau ở Cắt tự do, khoảng cách 4 thẻ Home).
+
+### Trần Tú — 6 commit
+
+```bash
+git checkout nhanh-trantu
+git config user.name "Tran Tu"
+git config user.email "<email_trantu>"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditHistory.java app/src/test/java/com/example/photofilter/presenter/EditHistoryTest.java
+git commit -m "feat(presenter): them EditHistory - undo/redo stack voi pristine-original ghim rieng"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/test/java/com/example/photofilter/presenter/FakeView.java app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
+git commit -m "feat(presenter): chuyen EditorPresenter sang mo hinh draft + EditHistory, sua bug Crop Original"
+
+git add app/src/main/java/com/example/photofilter/data/AuthRepository.java
+git commit -m "feat(data): them co intro_shown vao AuthRepository (theo thiet bi, khong theo tai khoan)"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java
+git commit -m "feat(presenter): them onStickerApplyRequested - in sticker len anh va commit vao lich su Undo/Redo"
+
+git add app/src/main/java/com/example/photofilter/presenter/EditorContract.java app/src/main/java/com/example/photofilter/presenter/EditorPresenter.java app/src/test/java/com/example/photofilter/presenter/EditorPresenterTest.java app/src/main/java/com/example/photofilter/data/CropUtils.java
+git commit -m "refactor(presenter): go onResizeRequested va CropUtils.resize() - khong con noi nao goi sau khi bo nut Doi co"
+
+git add app/src/main/java/com/example/photofilter/data/AuthRepository.java
+git commit -m "feat(data): them resetIntroSeen() cho phep xem lai man chao mung phuc vu demo"
+```
+
+### Phan Lê Huy — 17 commit
+
+```bash
+git checkout nhanh-huy
+git config user.name "Phan Le Huy"
+git config user.email "<email_huy>"
+
+git add app/build.gradle.kts app/src/main/AndroidManifest.xml
+git commit -m "fix: go tinh nang AI Enhance (Gemini) do khong dung duoc - xoa GeminiEnhanceRepository, bo quyen INTERNET khong can, bo doan code bypass SSL khong an toan"
+
+git add app/src/main/res/values/strings.xml app/src/main/res/drawable/ic_undo.xml app/src/main/res/drawable/ic_redo.xml
+git commit -m "feat(resource): them chuoi va icon cho Hoan tac/Lam lai"
+
+git add app/src/main/res/layout/activity_main.xml
+git commit -m "feat(ui): them nut Hoan tac/Lam lai tren top bar va hang Ap dung/Huy dung chung cho ca 4 tab"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): noi Undo/Redo va hang Ap dung/Huy dung chung vao MainActivity"
+
+git add app/src/main/res/layout/activity_main.xml
+git commit -m "fix(ui): sua thu tu 3 nut Hoan tac/Lam lai/Luu tren toolbar bi lech do MaterialToolbar xep view end-gravity theo thu tu khai bao"
+
+git add app/src/main/res/layout/activity_home.xml
+git commit -m "refactor(ui): doi 2 LinearLayout hang cua 4 the Home sang GridLayout 2 cot - 4 the doc lap, tang khoang cach 16dp->20dp"
+
+git add app/src/main/res/drawable-nodpi/sticker_*.png README.md
+git commit -m "feat(resource): them 15 sticker OpenMoji (CC BY-SA 4.0), ghi ro attribution trong README"
+
+git add app/src/main/res/values/strings.xml
+git commit -m "fix(ui): doi nhan tab AI va the AI Tools o Home thanh Cong cu cho dung ban chat (3/4 cong cu khong dung ML)"
+
+git add app/src/main/java/com/example/photofilter/ui/StickerOverlayView.java app/src/main/res/drawable/ic_tab_sticker.xml
+git commit -m "feat(ui): them StickerOverlayView - keo/pinch-zoom/xoay sticker bang cu chi 2 ngon"
+
+git add app/src/main/res/layout/activity_main.xml app/src/main/java/com/example/photofilter/ui/MainActivity.java
+git commit -m "feat(ui): noi tab Sticker (icon thu 5, panel 15 sticker, StickerOverlayView) vao MainActivity"
+
+git add app/src/main/res/layout/activity_intro.xml app/src/main/java/com/example/photofilter/ui/IntroActivity.java app/src/main/res/raw/welcome_hat.mp3 app/src/main/res/drawable-nodpi/img_intro_bubbles.jpg app/src/main/AndroidManifest.xml
+git commit -m "feat(ui): them IntroActivity - man chao mung phat giong noi Welcome to H.A.T tren nen anh bong bong (Ken Burns zoom)"
+
+git add app/src/main/java/com/example/photofilter/ui/LoginActivity.java app/src/main/java/com/example/photofilter/ui/RegisterActivity.java
+git commit -m "feat(ui): dieu huong qua IntroActivity truoc Home neu chua xem intro, tu Login va Register"
+
+git add app/src/main/res/drawable/ic_undo.xml app/src/main/res/drawable/ic_redo.xml
+git commit -m "fix(ui): ve lai icon Undo/Redo bang polygon an toan, sua loi icon bi cat mep do arc vuot viewport"
+
+git add app/src/main/java/com/example/photofilter/ui/MainActivity.java app/src/main/res/layout/activity_main.xml
+git commit -m "fix(ui): sua loi hien 2 hang Huy/Xac nhan chong nhau khi bat Cat tu do; go 5 nut Doi co (75-200%) khong can dung"
+
+git add app/src/main/res/values/strings.xml app/src/main/res/drawable/ic_resize.xml
+git commit -m "chore(resource): xoa string va icon cua tinh nang Doi co da go"
+
+git add app/src/main/java/com/example/photofilter/ui/IntroActivity.java
+git commit -m "fix(ui): bo co NEW_TASK/CLEAR_TASK thua, delay goToHome() qua Handler khi bam Back de tranh xung dot voi back-navigation cua he thong"
+
+git add app/src/main/java/com/example/photofilter/ui/HomeActivity.java app/src/main/res/values/strings.xml
+git commit -m "feat(ui): them nut Xem lai man chao mung trong menu tai khoan, phuc vu demo nhieu lan"
+```
+
+### Tú Anh — 3 commit (đặc tả, rà soát cuối, merge)
+
+```bash
+git checkout nhanh-tuanh
+git config user.name "Tu Anh"
+git config user.email "<email_tuanh>"
+
+git add docs/superpowers/specs/2026-07-28-editor-history-apply-cancel-design.md docs/superpowers/plans/2026-07-28-editor-history-apply-cancel.md
+git commit -m "docs: them spec/plan cho Undo-Redo + Apply/Cancel"
+
+git add docs/superpowers/specs/2026-07-29-home-intro-design.md docs/superpowers/plans/2026-07-29-home-intro.md docs/superpowers/specs/2026-07-29-sticker-overlay-design.md
+git commit -m "docs: them spec/plan cho man Intro va tab Sticker"
+
+# Chạy trước khi commit cuối:
+#   ./gradlew testDebugUnitTest assembleDebug
+git add -A
+git commit -m "chore: ra soat cuoi, chay lai toan bo unit test truoc khi merge"
+```
+
+### Cuối Ngày 7 — merge (Tú Anh)
+
+```bash
+git checkout main
+git merge nhanh-trantu --no-ff
+git merge nhanh-huy --no-ff
+git merge nhanh-tuanh --no-ff
+git push origin main
+```
+
+> **Ghi chú:** đợt này làm trực tiếp trên `main` (không tách nhánh riêng theo thời điểm code), commit ở trên viết theo đúng quy ước 3 nhánh để bạn áp dụng y hệt khi làm lại trên máy công ty (code ở đó đang cũ, chưa có toàn bộ Ngày 7 này) — chỉ cần theo đúng thứ tự file/commit message bên trên là ra kết quả tương đương.
+
+---
+
 ## Sau khi xong (chỉ cần làm 1 lần, ở Ngày 2 hoặc bất kỳ lúc nào trước merge đầu tiên)
 
 ```bash
