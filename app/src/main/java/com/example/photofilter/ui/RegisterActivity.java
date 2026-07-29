@@ -89,7 +89,8 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
                 if (error == null) {
-                    Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+                    Class<?> target = authRepository.hasSeenIntro() ? HomeActivity.class : IntroActivity.class;
+                    Intent intent = new Intent(RegisterActivity.this, target);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
