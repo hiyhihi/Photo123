@@ -54,7 +54,11 @@ public class IntroActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                goToHome();
+                // Deferred to the next message-loop iteration: calling goToHome() synchronously here raced
+                // the system's own back-navigation transaction (this activity is a task root) and dropped
+                // the whole task to the launcher instead of landing on HomeActivity. Posting lets that
+                // transaction finish first.
+                mainHandler.post(IntroActivity.this::goToHome);
             }
         });
     }
@@ -73,16 +77,20 @@ public class IntroActivity extends AppCompatActivity {
         kenBurnsAnimator.start();
     }
 
-    /** Idempotent: completion listener, Back press and the fallback timer can each try to call this once. */
+    /**
+     * Idempotent: completion listener, Back press and the fallback timer can each try to call this once.
+     * No NEW_TASK/CLEAR_TASK flags here — IntroActivity is already the sole root of a fresh task (started
+     * that way from Login/Register), so a plain same-task launch avoids racing a task-clear against an
+     * in-flight Back-navigation gesture, which was dropping the whole task to the launcher instead of
+     * landing on HomeActivity.
+     */
     private void goToHome() {
         if (navigated) {
             return;
         }
         navigated = true;
         authRepository.markIntroSeen();
-        Intent intent = new Intent(this, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        startActivity(new Intent(this, HomeActivity.class));
         finish();
     }
 
