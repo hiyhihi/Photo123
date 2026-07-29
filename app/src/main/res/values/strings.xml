@@ -106,8 +106,8 @@
     <string name="home_card_gallery_subtitle">Pick from library</string>
     <string name="home_card_camera">Camera</string>
     <string name="home_card_camera_subtitle">Capture the moment</string>
-    <string name="home_card_ai_enhance">AI Tools</string>
-    <string name="home_card_ai_enhance_subtitle">Sharpen, denoise &amp; more</string>
+    <string name="home_card_ai_enhance">Công cụ</string>
+    <string name="home_card_ai_enhance_subtitle">Làm nét, khử nhiễu và hơn thế</string>
     <string name="home_card_history">History</string>
     <string name="home_card_history_subtitle">Your saved edits</string>
     <string name="home_recent_photos_title">Recent Photos</string>
