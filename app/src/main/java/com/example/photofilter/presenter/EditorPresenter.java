@@ -2,6 +2,8 @@ package com.example.photofilter.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Handler;
@@ -437,6 +439,47 @@ public class EditorPresenter implements EditorContract.Presenter {
     public void onBackgroundRemovalRequested() {
         applyAiToolDraft(appContext.getString(R.string.ai_tool_background_removal), appContext.getString(R.string.error_ai_tool),
                 backgroundRemovalRepository::removeBackground);
+    }
+
+    @Override
+    public void onStickerApplyRequested(Bitmap stickerBitmap, float centerXFraction, float centerYFraction,
+                                         float scaleFraction, float rotationDegrees) {
+        Bitmap base = history.current();
+        if (base == null) {
+            return;
+        }
+        final int myRequestId = ++requestId;
+        executor.execute(() -> {
+            Bitmap result = compositeSticker(base, stickerBitmap, centerXFraction, centerYFraction, scaleFraction, rotationDegrees);
+            mainHandler.post(() -> {
+                if (myRequestId != requestId || view == null) {
+                    result.recycle();
+                    return;
+                }
+                history.commit(result, appContext.getString(R.string.label_sticker));
+                afterHistoryChange();
+            });
+        });
+    }
+
+    /** Draws {@code stickerBitmap} onto a full-size copy of {@code base} at the given normalized placement. */
+    private static Bitmap compositeSticker(Bitmap base, Bitmap stickerBitmap, float centerXFraction, float centerYFraction,
+                                            float scaleFraction, float rotationDegrees) {
+        Bitmap result = Bitmap.createBitmap(base.getWidth(), base.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(base, 0, 0, null);
+
+        float centerX = centerXFraction * base.getWidth();
+        float centerY = centerYFraction * base.getHeight();
+        float scale = (scaleFraction * base.getWidth()) / stickerBitmap.getWidth();
+
+        Matrix matrix = new Matrix();
+        matrix.postTranslate(-stickerBitmap.getWidth() / 2f, -stickerBitmap.getHeight() / 2f);
+        matrix.postScale(scale, scale);
+        matrix.postRotate(rotationDegrees);
+        matrix.postTranslate(centerX, centerY);
+        canvas.drawBitmap(stickerBitmap, matrix, null);
+        return result;
     }
 
     /** Cumulative AI op: reads and replaces `draftBitmap`, so e.g. Sharpen then Upscale can stack before one Apply. */

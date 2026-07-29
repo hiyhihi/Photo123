@@ -86,6 +86,19 @@ public interface EditorContract {
 
         void onBackgroundRemovalRequested();
 
+        /**
+         * Composites {@code stickerBitmap} onto the current committed image and commits the
+         * result as one Undo step. All 4 placement params are normalized (0..1) relative to the
+         * base image's own width/height, not screen pixels — the caller maps its on-screen
+         * overlay into this space before calling.
+         * @param centerXFraction horizontal center of the sticker, as a fraction of image width
+         * @param centerYFraction vertical center of the sticker, as a fraction of image height
+         * @param scaleFraction sticker's rendered width, as a fraction of image width
+         * @param rotationDegrees clockwise rotation in degrees
+         */
+        void onStickerApplyRequested(Bitmap stickerBitmap, float centerXFraction, float centerYFraction,
+                                      float scaleFraction, float rotationDegrees);
+
         void onSaveClicked();
 
         void onShareClicked();

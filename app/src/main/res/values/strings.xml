@@ -36,6 +36,7 @@
     <string name="nav_crop">Cắt</string>
     <string name="nav_adjust">Tuỳ chỉnh</string>
     <string name="nav_ai">Công cụ</string>
+    <string name="nav_sticker">Sticker</string>
     <string name="nav_export">Xuất</string>
 
     <string name="dialog_pick_source_title">Chọn ảnh từ đâu?</string>
@@ -60,6 +61,7 @@
     <string name="ai_tool_upscale">Tăng độ phân giải</string>
     <string name="ai_tool_background_removal">Xoá nền</string>
     <string name="error_ai_tool">Không thể xử lý ảnh bằng AI lúc này</string>
+    <string name="label_sticker">Sticker</string>
 
     <string name="empty_state_message">Chọn ảnh để bắt đầu</string>
     <string name="share_chooser_title">Chia sẻ ảnh qua</string>

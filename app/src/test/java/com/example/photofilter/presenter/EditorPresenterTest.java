@@ -336,4 +336,28 @@ public class EditorPresenterTest {
         assertEquals(afterCrop.getWidth(), afterRedo.getWidth());
         assertEquals(afterCrop.getHeight(), afterRedo.getHeight());
     }
+
+    @Test
+    public void onStickerApplyRequested_commitsCompositeMatchingBaseDimensionsAndEnablesUndo() {
+        pickImage();
+        Bitmap sticker = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+
+        presenter.onStickerApplyRequested(sticker, 0.5f, 0.5f, 0.3f, 15f);
+        idleMainLooper();
+
+        Bitmap result = view.images.get(view.images.size() - 1);
+        assertEquals(20, result.getWidth());
+        assertEquals(30, result.getHeight());
+        assertTrue(view.undoAvailableStates.get(view.undoAvailableStates.size() - 1));
+    }
+
+    @Test
+    public void onStickerApplyRequested_withoutImagePicked_doesNothing() {
+        Bitmap sticker = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+
+        presenter.onStickerApplyRequested(sticker, 0.5f, 0.5f, 0.3f, 0f);
+        idleMainLooper();
+
+        assertEquals(0, view.images.size());
+    }
 }
