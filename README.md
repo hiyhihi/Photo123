@@ -56,6 +56,10 @@ Bộ nhớ được quản lý chủ động: mọi `Bitmap` trung gian đều �
 - ML Kit Selfie Segmentation (xoá nền)
 - Robolectric + JUnit + Mockito (unit test)
 
+## Bản quyền tài nguyên bên thứ ba
+
+Sticker trong `app/src/main/assets/stickers/` lấy từ [OpenMoji](https://openmoji.org/) — dự án emoji/icon mã nguồn mở, giấy phép [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
 ## Build & chạy
 
 ```bash
