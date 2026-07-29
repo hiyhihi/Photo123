@@ -35,7 +35,7 @@
     <string name="nav_filters">Bộ lọc</string>
     <string name="nav_crop">Cắt</string>
     <string name="nav_adjust">Tuỳ chỉnh</string>
-    <string name="nav_ai">AI</string>
+    <string name="nav_ai">Công cụ</string>
     <string name="nav_export">Xuất</string>
 
     <string name="dialog_pick_source_title">Chọn ảnh từ đâu?</string>
