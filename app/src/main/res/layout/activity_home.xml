@@ -123,31 +123,39 @@
                 android:textColor="@color/home_text_muted"
                 android:textSize="14sp" />
 
-            <LinearLayout
-                android:id="@+id/cardsRow1"
+            <android.widget.GridLayout
+                android:id="@+id/cardsGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:orientation="horizontal">
+                android:columnCount="2"
+                android:rowCount="2">
 
-                <include layout="@layout/item_home_card" android:id="@+id/cardGallery" />
+                <include layout="@layout/item_home_card" android:id="@+id/cardGallery"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal" />
 
-                <include layout="@layout/item_home_card" android:id="@+id/cardCamera" android:layout_marginStart="20dp" />
+                <include layout="@layout/item_home_card" android:id="@+id/cardCamera"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_marginStart="20dp" />
 
-            </LinearLayout>
+                <include layout="@layout/item_home_card" android:id="@+id/cardAiEnhance"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_marginTop="20dp" />
 
-            <LinearLayout
-                android:id="@+id/cardsRow2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
+                <include layout="@layout/item_home_card" android:id="@+id/cardHistory"
+                    android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp" />
 
-                <include layout="@layout/item_home_card" android:id="@+id/cardAiEnhance" />
-
-                <include layout="@layout/item_home_card" android:id="@+id/cardHistory" android:layout_marginStart="20dp" />
-
-            </LinearLayout>
+            </android.widget.GridLayout>
 
             <TextView
                 android:layout_width="wrap_content"
