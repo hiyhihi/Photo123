@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     private static final int TAB_CROP = 1;
     private static final int TAB_ADJUST = 2;
     private static final int TAB_AI = 3;
+    private static final int TAB_STICKER = 4;
 
     private ImageView mainImageView;
     private TextView emptyStateText;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
 
     private CropOverlayView cropOverlayView;
     private View cropCustomActionsRow;
+    private StickerOverlayView stickerOverlayView;
     private boolean customCropActive;
 
     private FilterAdapter filterAdapter;
@@ -126,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpFilterList();
         setUpCropPanel();
         setUpAdjustPanel();
+        setUpStickerPanel();
         setUpAiPanel();
         setUpSaveButton();
         setUpUndoRedoButtons();
@@ -159,6 +163,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                     if (customCropActive) {
                         cancelCustomCrop();
                     }
+                    if (activeTab == TAB_STICKER) {
+                        stickerOverlayView.reset();
+                        stickerOverlayView.setVisibility(View.GONE);
+                    }
                     presenter.onCancelRequested();
                     setNavSelected(-1);
                     activeTab = -1;
@@ -175,25 +183,29 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
                 findViewById(R.id.filterRecyclerView),
                 findViewById(R.id.cropSheetPanel),
                 findViewById(R.id.adjustSheetPanel),
-                findViewById(R.id.aiSheetPanel)
+                findViewById(R.id.aiSheetPanel),
+                findViewById(R.id.stickerSheetPanel)
         };
         navButtons = new View[]{
                 findViewById(R.id.navFiltersButton),
                 findViewById(R.id.navCropButton),
                 findViewById(R.id.navAdjustButton),
-                findViewById(R.id.navAiButton)
+                findViewById(R.id.navAiButton),
+                findViewById(R.id.navStickerButton)
         };
         navIcons = new ImageView[]{
                 findViewById(R.id.navFiltersIcon),
                 findViewById(R.id.navCropIcon),
                 findViewById(R.id.navAdjustIcon),
-                findViewById(R.id.navAiIcon)
+                findViewById(R.id.navAiIcon),
+                findViewById(R.id.navStickerIcon)
         };
         navLabels = new TextView[]{
                 findViewById(R.id.navFiltersLabel),
                 findViewById(R.id.navCropLabel),
                 findViewById(R.id.navAdjustLabel),
-                findViewById(R.id.navAiLabel)
+                findViewById(R.id.navAiLabel),
+                findViewById(R.id.navStickerLabel)
         };
         for (int i = 0; i < navButtons.length; i++) {
             int tab = i;
@@ -208,6 +220,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         if (activeTab == tab && sheetOpen) {
             if (customCropActive) {
                 cancelCustomCrop();
+            }
+            if (activeTab == TAB_STICKER) {
+                stickerOverlayView.reset();
+                stickerOverlayView.setVisibility(View.GONE);
             }
             presenter.onCancelRequested();
             // Reset activeTab/nav selection BEFORE hiding the sheet: BottomSheetBehavior.setState()
@@ -224,6 +240,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         if (sheetOpen) {
             if (customCropActive) {
                 cancelCustomCrop();
+            }
+            if (activeTab == TAB_STICKER) {
+                stickerOverlayView.reset();
+                stickerOverlayView.setVisibility(View.GONE);
             }
             presenter.onCancelRequested();
             pendingTab = tab;
@@ -245,6 +265,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setNavSelected(tab);
         activeTab = tab;
         presenter.onToolTabOpened();
+        if (tab == TAB_STICKER) {
+            stickerOverlayView.setImageBounds(computeImageDisplayBounds());
+            stickerOverlayView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setNavSelected(int tab) {
@@ -309,6 +333,32 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         RectF normalizedRect = cropOverlayView.getNormalizedCropRect();
         cancelCustomCrop();
         presenter.onCustomCropRequested(normalizedRect);
+    }
+
+    private void setUpStickerPanel() {
+        stickerOverlayView = findViewById(R.id.stickerOverlayView);
+        setUpStickerButton(R.id.stickerHeartButton, R.drawable.sticker_heart);
+        setUpStickerButton(R.id.stickerStarButton, R.drawable.sticker_star);
+        setUpStickerButton(R.id.stickerFireButton, R.drawable.sticker_fire);
+        setUpStickerButton(R.id.stickerSunglassesButton, R.drawable.sticker_sunglasses);
+        setUpStickerButton(R.id.stickerLaughTearsButton, R.drawable.sticker_laugh_tears);
+        setUpStickerButton(R.id.stickerPartyPopperButton, R.drawable.sticker_party_popper);
+        setUpStickerButton(R.id.stickerThumbsUpButton, R.drawable.sticker_thumbs_up);
+        setUpStickerButton(R.id.stickerRainbowButton, R.drawable.sticker_rainbow);
+        setUpStickerButton(R.id.stickerSparklesButton, R.drawable.sticker_sparkles);
+        setUpStickerButton(R.id.stickerCrownButton, R.drawable.sticker_crown);
+        setUpStickerButton(R.id.stickerBalloonButton, R.drawable.sticker_balloon);
+        setUpStickerButton(R.id.stickerCameraButton, R.drawable.sticker_camera);
+        setUpStickerButton(R.id.stickerKissButton, R.drawable.sticker_kiss);
+        setUpStickerButton(R.id.stickerClapButton, R.drawable.sticker_clap);
+        setUpStickerButton(R.id.stickerHeartEyesButton, R.drawable.sticker_heart_eyes);
+    }
+
+    private void setUpStickerButton(int viewId, int drawableResId) {
+        findViewById(viewId).setOnClickListener(v -> {
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), drawableResId);
+            stickerOverlayView.setSticker(bitmap);
+        });
     }
 
     /** Where the image actually sits inside mainImageView (fitCenter can letterbox), in the ImageView's own pixel space. */
@@ -383,6 +433,10 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
             if (customCropActive) {
                 cancelCustomCrop();
             }
+            if (activeTab == TAB_STICKER) {
+                stickerOverlayView.reset();
+                stickerOverlayView.setVisibility(View.GONE);
+            }
             presenter.onCancelRequested();
             closeSheet();
         });
@@ -390,7 +444,18 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
             if (customCropActive) {
                 cancelCustomCrop();
             }
-            presenter.onApplyRequested();
+            if (activeTab == TAB_STICKER) {
+                if (stickerOverlayView.hasSticker()) {
+                    StickerOverlayView.Placement placement = stickerOverlayView.getNormalizedPlacement();
+                    presenter.onStickerApplyRequested(stickerOverlayView.getStickerBitmap(),
+                            placement.centerXFraction, placement.centerYFraction,
+                            placement.scaleFraction, placement.rotationDegrees);
+                }
+                stickerOverlayView.reset();
+                stickerOverlayView.setVisibility(View.GONE);
+            } else {
+                presenter.onApplyRequested();
+            }
             closeSheet();
         });
     }

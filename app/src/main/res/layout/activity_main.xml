@@ -103,6 +103,12 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
+        <com.example.photofilter.ui.StickerOverlayView
+            android:id="@+id/stickerOverlayView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
     </FrameLayout>
 
     <!-- Persistent Material bottom sheet: hidden by default, one of the 5 panels below
@@ -340,6 +346,40 @@
 
         </HorizontalScrollView>
 
+        <HorizontalScrollView
+            android:id="@+id/stickerSheetPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="16dp"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView android:id="@+id/stickerHeartButton" android:layout_width="48dp" android:layout_height="48dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_heart" />
+                <ImageView android:id="@+id/stickerStarButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_star" />
+                <ImageView android:id="@+id/stickerFireButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_fire" />
+                <ImageView android:id="@+id/stickerSunglassesButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_sunglasses" />
+                <ImageView android:id="@+id/stickerLaughTearsButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_laugh_tears" />
+                <ImageView android:id="@+id/stickerPartyPopperButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_party_popper" />
+                <ImageView android:id="@+id/stickerThumbsUpButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_thumbs_up" />
+                <ImageView android:id="@+id/stickerRainbowButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_rainbow" />
+                <ImageView android:id="@+id/stickerSparklesButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_sparkles" />
+                <ImageView android:id="@+id/stickerCrownButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_crown" />
+                <ImageView android:id="@+id/stickerBalloonButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_balloon" />
+                <ImageView android:id="@+id/stickerCameraButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_camera" />
+                <ImageView android:id="@+id/stickerKissButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_kiss" />
+                <ImageView android:id="@+id/stickerClapButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_clap" />
+                <ImageView android:id="@+id/stickerHeartEyesButton" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="12dp" android:padding="4dp" android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@null" android:src="@drawable/sticker_heart_eyes" />
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
         </FrameLayout>
 
         </androidx.core.widget.NestedScrollView>
@@ -517,6 +557,37 @@
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/inter_medium"
                 android:text="@string/nav_ai"
+                android:textColor="@color/text_muted"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navStickerButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/navStickerIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/nav_sticker"
+                android:src="@drawable/ic_tab_sticker"
+                android:tint="@color/text_muted" />
+
+            <TextView
+                android:id="@+id/navStickerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:text="@string/nav_sticker"
                 android:textColor="@color/text_muted"
                 android:textSize="10sp" />
 
