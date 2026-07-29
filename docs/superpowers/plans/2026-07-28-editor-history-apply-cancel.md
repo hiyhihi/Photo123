@@ -16,6 +16,14 @@
 - Package for `EditHistory`: `com.example.photofilter.presenter` (package-private, same visibility pattern as `FakeView`/`ImmediateExecutorService`).
 - Keep `MainActivity`/`ui/` free of bitmap logic (existing project convention, see `README.md` "Kiến trúc" section) — all draft/history logic stays in `EditorPresenter`/`EditHistory`.
 
+## Execution-order correction (added after Task 1 landed, before Task 2 was dispatched)
+
+This is a **single Gradle module** (`app` only, no `:presenter`/`:ui` split — confirmed via `settings.gradle.kts`). `./gradlew testDebugUnitTest` compiles the entire `app/src/main` sourceset before running any test, so it transitively requires `MainActivity.java` to compile against whatever `EditorContract` shape exists at that commit — there is no way to land Task 2 (Contract + Presenter) in a state that both (a) leaves `MainActivity.java` untouched and (b) passes `testDebugUnitTest`, because `MainActivity implements EditorContract.View` with the *old* method names. Task 2's own implementer hit this and correctly stopped rather than guessing (see `task-2-report.md`).
+
+**Corrected effective dispatch order:** 1 (done) → **3** (strings/icons — independent) → **4** (layout — independent) → **2, with Task 5's `MainActivity` changes folded into the same task** (they must land in the same compiling commit set) → **6** (renumbered **5**, manual verification).
+
+Task 2's and Task 5's sections below are left as originally written (each is still a correct, self-contained *description* of what changes where) — they were simply **dispatched and committed together as one unit**, in the order: strings/icons, layout, then Contract+Presenter+FakeView+Test+MainActivity together, then manual verification. See the ledger (`progress.md`) for the actual commits.
+
 ---
 
 ### Task 1: `EditHistory` class + unit tests
@@ -1821,26 +1829,28 @@ git commit -m "feat(ui): noi Undo/Redo va hang Ap dung/Huy dung chung vao MainAc
 
 **Files:** none (verification only).
 
-- [ ] **Step 1: Install and launch**
+- [x] **Step 1: Install and launch**
 
 Run: `JAVA_HOME="/c/Program Files/Java/jdk-17" ANDROID_HOME="/d/Android/Sdk" ./gradlew installDebug --console=plain` with an emulator/device running, then open the app.
 
-- [ ] **Step 2: Walk through the regression scenario for the reported bug**
+- [x] **Step 2: Walk through the regression scenario for the reported bug**
 
 Pick an image → open Cắt → tap 1:1 → Apply → open Cắt again → tap Xoay → tap "Gốc" (Original) → Apply. Expected: image returns to the exact original picked photo (not the squared/rotated intermediate).
 
-- [ ] **Step 3: Walk through Apply/Cancel on every tab**
+- [x] **Step 3: Walk through Apply/Cancel on every tab**
 
 For each of Bộ lọc / Cắt / Tuỳ chỉnh / AI: open the tab, make a change, tap Huỷ — expect the image to revert with no Undo entry created (Undo button stays disabled if it was the first edit). Repeat and tap Xác nhận instead — expect the change to stick and the Undo button to become enabled.
 
-- [ ] **Step 4: Walk through Undo/Redo**
+- [x] **Step 4: Walk through Undo/Redo**
 
 Apply 3 different edits (e.g. filter, crop, adjust). Tap Undo three times — expect to land back on the original image, Undo disabled. Tap Redo three times — expect to return to the last edited state, Redo disabled again.
 
-- [ ] **Step 5: Confirm Save still works**
+- [x] **Step 5: Confirm Save still works**
 
 Tap Lưu after a few edits — expect the save-result screen to show the currently-edited image (not a stale one).
 
-- [ ] **Step 6: Report back**
+- [x] **Step 6: Report back**
 
 No commit for this task — report results in chat; file follow-up bugs as new tasks if anything above fails.
+
+**Result (2026-07-29):** All steps passed on `Medium_Phone` emulator (API 37), debug build from this branch. Crop→Gốc regression scenario confirmed fixed. Apply/Cancel verified on all 4 tabs. Undo/Redo button enabled-state verified via uiautomator (not just visually) across 3 steps each way. Save shows the live edited state. No crashes/exceptions in logcat during the session.
