@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
 
     private CropOverlayView cropOverlayView;
     private View cropCustomActionsRow;
+    private View toolActionsRow;
     private StickerOverlayView stickerOverlayView;
     private boolean customCropActive;
 
@@ -298,11 +299,6 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         setUpToolIcon(R.id.cropCustomButton, R.drawable.ic_crop_custom, R.string.action_crop_custom, this::toggleCustomCrop);
         setUpToolIcon(R.id.rotateButton, R.drawable.ic_rotate, R.string.action_rotate, () -> presenter.onRotateRequested());
         setUpToolIcon(R.id.flipButton, R.drawable.ic_flip, R.string.action_flip, () -> presenter.onFlipRequested());
-        setUpToolIcon(R.id.resize75Button, R.drawable.ic_resize, R.string.resize_75, () -> presenter.onResizeRequested(75));
-        setUpToolIcon(R.id.resize100Button, R.drawable.ic_resize, R.string.resize_100, () -> presenter.onResizeRequested(100));
-        setUpToolIcon(R.id.resize125Button, R.drawable.ic_resize, R.string.resize_125, () -> presenter.onResizeRequested(125));
-        setUpToolIcon(R.id.resize150Button, R.drawable.ic_resize, R.string.resize_150, () -> presenter.onResizeRequested(150));
-        setUpToolIcon(R.id.resize200Button, R.drawable.ic_resize, R.string.resize_200, () -> presenter.onResizeRequested(200));
 
         cropOverlayView = findViewById(R.id.cropOverlayView);
         cropCustomActionsRow = findViewById(R.id.cropCustomActionsRow);
@@ -311,15 +307,18 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     /** Shows/hides the drag-handle crop overlay over the image; the ratio/rotate/flip/resize icons still work normally either way. */
+    /** cropCustomActionsRow replaces the shared toolActionsRow while active — showing both stacked one on top of the other was the "2 duplicate rows" bug. */
     private void toggleCustomCrop() {
         customCropActive = !customCropActive;
         if (customCropActive) {
             cropOverlayView.setImageBounds(computeImageDisplayBounds());
             cropOverlayView.setVisibility(View.VISIBLE);
             cropCustomActionsRow.setVisibility(View.VISIBLE);
+            toolActionsRow.setVisibility(View.GONE);
         } else {
             cropOverlayView.setVisibility(View.GONE);
             cropCustomActionsRow.setVisibility(View.GONE);
+            toolActionsRow.setVisibility(View.VISIBLE);
         }
     }
 
@@ -327,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
         customCropActive = false;
         cropOverlayView.setVisibility(View.GONE);
         cropCustomActionsRow.setVisibility(View.GONE);
+        toolActionsRow.setVisibility(View.VISIBLE);
     }
 
     private void confirmCustomCrop() {
@@ -429,6 +429,7 @@ public class MainActivity extends AppCompatActivity implements EditorContract.Vi
     }
 
     private void setUpToolActionsRow() {
+        toolActionsRow = findViewById(R.id.toolActionsRow);
         findViewById(R.id.toolCancelButton).setOnClickListener(v -> {
             if (customCropActive) {
                 cancelCustomCrop();

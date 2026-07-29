@@ -175,11 +175,6 @@
                     <include layout="@layout/item_tool_icon" android:id="@+id/cropCustomButton" android:layout_marginStart="8dp" />
                     <include layout="@layout/item_tool_icon" android:id="@+id/rotateButton" android:layout_marginStart="14dp" />
                     <include layout="@layout/item_tool_icon" android:id="@+id/flipButton" android:layout_marginStart="8dp" />
-                    <include layout="@layout/item_tool_icon" android:id="@+id/resize75Button" android:layout_marginStart="14dp" />
-                    <include layout="@layout/item_tool_icon" android:id="@+id/resize100Button" android:layout_marginStart="8dp" />
-                    <include layout="@layout/item_tool_icon" android:id="@+id/resize125Button" android:layout_marginStart="8dp" />
-                    <include layout="@layout/item_tool_icon" android:id="@+id/resize150Button" android:layout_marginStart="8dp" />
-                    <include layout="@layout/item_tool_icon" android:id="@+id/resize200Button" android:layout_marginStart="8dp" />
 
                 </LinearLayout>
 
