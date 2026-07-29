@@ -5,7 +5,7 @@ Trạng thái: Chờ user duyệt spec
 
 ## Bối cảnh
 
-App đã có sẵn 15 sticker PNG (nền trong suốt, 618×618, giấy phép OpenMoji CC BY-SA 4.0) ở `app/src/main/assets/stickers/`, và có sẵn mô hình draft → Apply/Cancel + Undo/Redo toàn cục cho 4 tab (Bộ lọc/Cắt/Tuỳ chỉnh/AI) vừa hoàn thiện. Muốn thêm tab thứ 5 "Sticker": chọn 1 sticker từ danh sách, kéo/phóng to-nhỏ/xoay bằng cử chỉ 2 ngón (kiểu Instagram/Snapchat), Áp dụng sẽ "in" sticker lên ảnh thật và ghi vào lịch sử Undo/Redo như mọi tool khác.
+App đã có sẵn 15 sticker PNG (nền trong suốt, 618×618, giấy phép OpenMoji CC BY-SA 4.0) ở `app/src/main/res/drawable-nodpi/` (đặt trực tiếp làm drawable resource — không phải asset — để tham chiếu thẳng qua `@drawable/...` trong XML tĩnh, giống hệt cách panel AI hiện có liệt kê 4 công cụ cố định), và có sẵn mô hình draft → Apply/Cancel + Undo/Redo toàn cục cho 4 tab (Bộ lọc/Cắt/Tuỳ chỉnh/AI) vừa hoàn thiện. Muốn thêm tab thứ 5 "Sticker": chọn 1 sticker từ danh sách, kéo/phóng to-nhỏ/xoay bằng cử chỉ 2 ngón (kiểu Instagram/Snapchat), Áp dụng sẽ "in" sticker lên ảnh thật và ghi vào lịch sử Undo/Redo như mọi tool khác.
 
 ## Mục tiêu
 
@@ -26,33 +26,9 @@ App đã có sẵn 15 sticker PNG (nền trong suốt, 618×618, giấy phép Op
 
 ## Kiến trúc
 
-### 1. `StickerRepository` (mới, `data/` layer)
+### 1. Danh sách sticker — tĩnh trong `MainActivity`, không cần Repository riêng
 
-Danh sách 15 tên file cố định (giống cách `FilterRepository` liệt kê filter có sẵn), đọc bitmap từ `AssetManager`:
-
-```java
-public class StickerRepository {
-    private static final String[] STICKER_ASSET_NAMES = {
-        "sticker_heart", "sticker_star", "sticker_fire", "sticker_sunglasses",
-        "sticker_laugh_tears", "sticker_party_popper", "sticker_thumbs_up",
-        "sticker_rainbow", "sticker_sparkles", "sticker_crown", "sticker_balloon",
-        "sticker_camera", "sticker_kiss", "sticker_clap", "sticker_heart_eyes"
-    };
-
-    public List<String> listStickerNames() {
-        return Collections.unmodifiableList(Arrays.asList(STICKER_ASSET_NAMES));
-    }
-
-    /** @return null nếu không đọc được asset (không nên xảy ra vì đây là asset đóng gói sẵn). */
-    public Bitmap loadSticker(Context context, String name) {
-        try (InputStream in = context.getAssets().open("stickers/" + name + ".png")) {
-            return BitmapFactory.decodeStream(in);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-}
-```
+15 sticker đã nằm ở `res/drawable-nodpi/` (tên `sticker_xxx.png`) nên được tham chiếu thẳng qua `@drawable/sticker_xxx` trong XML tĩnh — **giống hệt cách panel AI hiện có** liệt kê 4 công cụ cố định (`aiSharpenButton`/`aiDenoiseButton`/...), không phải qua `RecyclerView` + Adapter như dải thumbnail Bộ lọc (nơi đó cần vì `FilterItem` có tên/trạng thái yêu thích tính toán runtime — sticker thì không). Vì vậy không cần thêm `StickerRepository`/`data` layer nào cho việc này: mỗi sticker là 1 `ImageView` tĩnh trong `activity_main.xml`, `src` trỏ thẳng resource, `MainActivity` chỉ cần 1 `setOnClickListener` gọi `BitmapFactory.decodeResource(getResources(), R.drawable.sticker_xxx)` rồi đưa cho overlay.
 
 ### 2. `StickerOverlayView` (mới, `ui/` layer) — hiển thị & thao tác, KHÔNG đụng bitmap thật
 
@@ -134,7 +110,7 @@ findViewById(R.id.toolApplyButton).setOnClickListener(v -> {
 });
 ```
 
-Panel Sticker: 1 `RecyclerView` ngang, adapter đơn giản (danh sách tên + bitmap preview đọc qua `StickerRepository`, decode 1 lần khi mở tab lần đầu, cache lại — không decode lại mỗi lần mở tab). Chạm 1 item → `stickerOverlayView.setSticker(bitmap)` trực tiếp, **không qua Presenter** (thuần UI, không có logic nghiệp vụ nào ở bước chọn/xem trước).
+Panel Sticker: `HorizontalScrollView` + `LinearLayout` chứa 15 `ImageView` tĩnh (`src="@drawable/sticker_xxx"`), giống hệt cấu trúc panel AI. Mỗi `ImageView` có `setOnClickListener` riêng gọi `BitmapFactory.decodeResource(...)` rồi `stickerOverlayView.setSticker(bitmap)` trực tiếp, **không qua Presenter** (thuần UI, không có logic nghiệp vụ nào ở bước chọn/xem trước).
 
 ## Trường hợp biên
 
@@ -144,11 +120,10 @@ Panel Sticker: 1 `RecyclerView` ngang, adapter đơn giản (danh sách tên + b
 
 ## Testing
 
-- `StickerRepository`: unit test Robolectric — `listStickerNames()` trả đúng 15 tên, `loadSticker()` cho mỗi tên trả về bitmap khác `null` (mirror `FilterRepositoryTest` nếu có, hoặc pattern test đơn giản của các Repository khác).
 - `EditorPresenter.onStickerApplyRequested()`: unit test được — đây là phép toán bitmap thuần (`Canvas`/`Matrix`), giống cách `CropUtilsTest` test `customCrop()`. Test: tạo ảnh nền known-size, "dán" sticker ở toạ độ normalized đã biết, assert ảnh kết quả có đúng kích thước ảnh nền (không đổi kích thước ảnh gốc) và không bị `null`/crash.
 - `StickerOverlayView` (touch/gesture): **không viết test tự động** — giống `CropOverlayView` hiện tại không có test cho phần kéo-thả tương tác, chỉ xác minh thủ công trên emulator ở task cuối cùng của plan.
 
 ## File thay đổi
 
-- Thêm: `StickerRepository.java`, `StickerRepositoryTest.java`, `StickerOverlayView.java`, `layout/item_sticker_thumbnail.xml` (hoặc tái dùng layout thumbnail filter nếu giống hệt), `drawable/ic_tab_sticker.xml`.
-- Sửa: `EditorContract.java`, `EditorPresenter.java`, `EditorPresenterTest.java` (thêm test cho `onStickerApplyRequested`), `MainActivity.java`, `activity_main.xml` (thêm nav icon thứ 5 + panel Sticker + `StickerOverlayView`), `strings.xml` (nhãn tab, content description).
+- Thêm: `StickerOverlayView.java`, `drawable/ic_tab_sticker.xml`.
+- Sửa: `EditorContract.java`, `EditorPresenter.java`, `EditorPresenterTest.java` (thêm test cho `onStickerApplyRequested`), `MainActivity.java`, `activity_main.xml` (thêm nav icon thứ 5 + panel Sticker tĩnh 15 `ImageView` + `StickerOverlayView`), `strings.xml` (nhãn tab, content description).
