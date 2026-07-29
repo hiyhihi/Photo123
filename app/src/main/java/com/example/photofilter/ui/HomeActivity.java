@@ -150,6 +150,11 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 })
+                .setNeutralButton(R.string.action_replay_intro, (dialog, which) -> {
+                    authRepository.resetIntroSeen();
+                    startActivity(new Intent(this, IntroActivity.class));
+                    finish();
+                })
                 .setNegativeButton(R.string.action_cancel_dialog, null)
                 .show();
     }

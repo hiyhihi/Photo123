@@ -43,6 +43,11 @@ public class AuthRepository {
         prefs.edit().putBoolean(KEY_INTRO_SHOWN, true).apply();
     }
 
+    /** Lets the user replay the one-time welcome screen on demand (e.g. for a demo), without clearing the session. */
+    public void resetIntroSeen() {
+        prefs.edit().putBoolean(KEY_INTRO_SHOWN, false).apply();
+    }
+
     /** @return null on success, or a user-facing error message. */
     public String signUp(String email, String password) {
         if (userRepository.emailExists(email)) {

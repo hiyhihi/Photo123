@@ -83,6 +83,7 @@
     <string name="error_password_too_short">Mật khẩu cần ít nhất 6 ký tự</string>
     <string name="logout_confirm_title">Đăng xuất</string>
     <string name="logout_confirm_message">Bạn có chắc muốn đăng xuất khỏi %1$s?</string>
+    <string name="action_replay_intro">Xem lại màn chào mừng</string>
     <string name="action_cancel_dialog">Huỷ</string>
     <string name="content_desc_account">Tài khoản</string>
     <string name="intro_welcome_text">Welcome to H.A.T</string>
